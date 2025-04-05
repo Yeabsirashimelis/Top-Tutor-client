@@ -39,7 +39,7 @@ export default function Register() {
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Clear error when user types
-    if (errors[name]) {
+    if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };

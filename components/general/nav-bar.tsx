@@ -97,6 +97,7 @@ export default function Navbar() {
                             key={course.title}
                             title={course.title}
                             href={course.href}
+                            className=""
                           >
                             {course.description}
                           </ListItem>
@@ -115,6 +116,7 @@ export default function Navbar() {
                             key={mentor.title}
                             title={mentor.title}
                             href={mentor.href}
+                            className=""
                           >
                             {mentor.description}
                           </ListItem>
@@ -274,7 +276,7 @@ export default function Navbar() {
   );
 }
 
-const ListItem = ({ className, title, children, href, ...props }) => {
+const ListItem = ({ className, title, children, href, ...props }: any) => {
   return (
     <li>
       <NavigationMenuLink asChild>
