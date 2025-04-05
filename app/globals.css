@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -116,7 +117,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
   }
+}
+
+[data-state="active"].tabs-trigger {
+  background-color: rgb(79, 70, 229);
+  color: whitesmoke;
 }

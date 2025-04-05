@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { Star, Users } from "lucide-react";
 import {
@@ -7,22 +9,32 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 interface CourseCardProps {
+  id: number;
   title: string;
   category: string;
   rating: number;
   photo: string;
+  instructorName: string;
 }
 
 export default function CourseCard({
+  id,
   title,
   category,
   rating,
   photo,
+  instructorName,
 }: CourseCardProps) {
+  const router = useRouter();
+
   return (
-    <Card className=" transition-all duration-300 hover:shadow-lg">
+    <Card
+      className=" transition-all duration-300 hover:shadow-lg"
+      onClick={() => router.push(`/courses/${id}`)}
+    >
       <CardHeader className="p-0 relative">
         <div className="relative h-48 w-full">
           <Image src={photo} alt={title} fill className="object-cover" />
@@ -34,10 +46,11 @@ export default function CourseCard({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="px-2 py-1">
         <h3 className="text-lg font-semibold text-gray-800 mb-1">{title}</h3>
+        <h3 className="text-indigo-800 mt-3">instructor:{instructorName}</h3>
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex items-center justify-between">
+      <CardFooter className="px-4 pt-0 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <p>Rating: </p>
           <div className="flex items-center gap-1 text-sm">

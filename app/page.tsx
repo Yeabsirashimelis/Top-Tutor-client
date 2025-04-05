@@ -6,6 +6,7 @@ import PopularCourses from "@/components/home/popular-courses";
 import RightChoice from "@/components/home/right-choice";
 import StatsHome from "@/components/home/stats-home-page";
 import Testimonials from "@/components/home/testimonial";
+import SampleVideos from "@/components/home/sample-videos";
 
 export default function HomePage() {
   return (
@@ -14,6 +15,7 @@ export default function HomePage() {
       <StatsHome />
       <RightChoice />
       <PopularCourses />
+      <SampleVideos />
       <Testimonials />
     </div>
   );
