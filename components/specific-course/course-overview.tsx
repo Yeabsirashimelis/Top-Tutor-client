@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Course } from "@/types/types";
 import {
   Clock,
   BarChart3,
@@ -10,132 +10,125 @@ import {
   Star,
 } from "lucide-react";
 
-export default function CourseOverview() {
+interface CourseOverviewProps {
+  course: Course;
+  access?: boolean;
+}
+
+export default function CourseOverview({
+  course,
+  access,
+}: CourseOverviewProps) {
+  const totalLectures = course.sections.reduce(
+    (acc, sec) => acc + sec.lectures.length,
+    0
+  );
+
   return (
     <div className="space-y-8">
+      {/* Course Cover Image */}
+      {course.coverImage && (
+        <div className="w-full h-60 md:h-80 overflow-hidden rounded-lg">
+          <img
+            src={course.coverImage}
+            alt={course.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      {/* About This Course */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">About This Course</h3>
-        <p>
-          Learn React from the ground up and build modern, interactive web
-          applications with this comprehensive course. Master the fundamentals
-          of React, including components, props, state, and hooks, and gain the
-          skills to create professional-grade applications.
-        </p>
+        <p>{course.description}</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Clock className="h-4 w-4" />
-              <span>Duration</span>
+              Duration
             </div>
-            <p className="text-sm text-muted-foreground">12 hours</p>
+            <p className="text-sm text-muted-foreground">
+              Approx. {totalLectures * 10} min
+            </p>
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm font-medium">
               <BarChart3 className="h-4 w-4" />
-              <span>Skill Level</span>
+              Skill Level
             </div>
             <p className="text-sm text-muted-foreground">
-              Beginner to Intermediate
+              {course.skillLevel || "Beginner"}
             </p>
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm font-medium">
               <FileText className="h-4 w-4" />
-              <span>Lectures</span>
+              Lectures
             </div>
-            <p className="text-sm text-muted-foreground">45 lectures</p>
+            <p className="text-sm text-muted-foreground">
+              {totalLectures} lectures
+            </p>
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Globe className="h-4 w-4" />
-              <span>Language</span>
+              Language
             </div>
-            <p className="text-sm text-muted-foreground">English</p>
+            <p className="text-sm text-muted-foreground">
+              {course.language || "English"}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">What You'll Learn</h3>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          <li className="flex gap-2">
-            <ThumbsUp className="h-5 w-5 text-green-500 shrink-0" />
-            <span>
-              Build modern React applications using functional components
-            </span>
-          </li>
-          <li className="flex gap-2">
-            <ThumbsUp className="h-5 w-5 text-green-500 shrink-0" />
-            <span>
-              Master React Hooks for state management and side effects
-            </span>
-          </li>
-          <li className="flex gap-2">
-            <ThumbsUp className="h-5 w-5 text-green-500 shrink-0" />
-            <span>Create reusable components with proper props and state</span>
-          </li>
-          <li className="flex gap-2">
-            <ThumbsUp className="h-5 w-5 text-green-500 shrink-0" />
-            <span>Implement routing with React Router</span>
-          </li>
-          <li className="flex gap-2">
-            <ThumbsUp className="h-5 w-5 text-green-500 shrink-0" />
-            <span>
-              Connect React applications to APIs and external services
-            </span>
-          </li>
-          <li className="flex gap-2">
-            <ThumbsUp className="h-5 w-5 text-green-500 shrink-0" />
-            <span>Deploy your applications to production environments</span>
-          </li>
-        </ul>
-      </div>
-
+      {/* Instructor */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Instructor</h3>
         <div className="flex gap-4">
           <img
-            src="/images/man"
+            src={course.instructor.avatar}
             alt="Instructor"
-            className="rounded-full h-16 w-16 object-cover"
+            className="rounded-md h-16 w-16 object-cover"
           />
           <div>
-            <h4 className="font-medium">Amanuel Sisay</h4>
+            <h4 className="font-medium">{course.instructor.name}</h4>
             <p className="text-sm text-muted-foreground">
-              Senior React Developer & Educator
+              {course.instructor.bio || ""}
             </p>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
               <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
+                {[...Array(5)].map((_, i) => (
                   <Star
-                    key={star}
+                    key={i}
                     className="h-4 w-4 fill-yellow-400 text-yellow-400"
                   />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">
-                4.8 Instructor Rating
-              </span>
+              <span>{course.instructor.rating} Instructor Rating</span>
             </div>
             <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <MessageSquare className="h-4 w-4" />
-                <span>25,000+ Reviews</span>
+                {course.instructor.reviewsCount} Reviews
               </div>
               <div className="flex items-center gap-1">
                 <Award className="h-4 w-4" />
-                <span>120,000+ Students</span>
+                {course.instructor.totalStudents} Students
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-4">
-        <Button className="w-full sm:w-auto bg-indigo-600">
-          Download Course Materials
-        </Button>
-      </div>
+      {/* Access */}
+      {!access && (
+        <div className="p-6 border rounded-lg bg-gray-50">
+          <h3 className="text-lg font-medium">Get Access to This Course</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Price: ${course.price.toFixed(2)}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -61,7 +61,7 @@ export default function Navbar() {
       <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-200">
         <div className="w-[95%] mx-auto">
           <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
+            {/* Logo */}{" "}
             <Link href="/" className="flex items-center gap-2">
               <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600">
                 <img
@@ -74,39 +74,24 @@ export default function Navbar() {
                 TOP-TUTOR
               </span>
             </Link>
-
             {/* Desktop Navigation */}
             <div className="hidden md:flex">
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
-                    <Link href="/" legacyBehavior passHref>
-                      <NavigationMenuLink className="group inline-flex h-9 w-max text-base items-center justify-center rounded-md bg-background px-4 py-2 font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                        Home
-                      </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink asChild>
+                      <Link href="/">Home</Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
+
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger className="text-base">
+                    <NavigationMenuLink asChild>
                       <Link href="/courses">Courses</Link>
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                        {courses.map((course) => (
-                          <ListItem
-                            key={course.title}
-                            title={course.title}
-                            href={course.href}
-                            className=""
-                          >
-                            {course.description}
-                          </ListItem>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
+
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger className="text-base">
+                    <NavigationMenuTrigger className="text-sm">
                       Mentors
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -124,34 +109,31 @@ export default function Navbar() {
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
+
                   <NavigationMenuItem>
-                    <Link href="/about" legacyBehavior passHref>
-                      <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                        About
-                      </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink asChild>
+                      <Link href="/about">About</Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
-
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center gap-4">
               <Link href="/signin">
                 <Button
                   variant="ghost"
-                  className="text-base text-indigo-600 font-semibold hover:bg-indigo-50"
+                  className="text-sm text-indigo-600 font-semibold hover:bg-indigo-50"
                 >
                   Sign In
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="text-base bg-indigo-600 hover:bg-indigo-700">
+                <Button className="text-sm bg-indigo-600 hover:bg-indigo-700">
                   Register
                 </Button>
               </Link>
             </div>
-
             {/* Mobile Menu Button */}
             <button
               className="flex md:hidden"
@@ -208,18 +190,6 @@ export default function Navbar() {
                   <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Courses
                   </h3>
-                  <div className="space-y-1">
-                    {courses.map((course) => (
-                      <Link
-                        key={course.title}
-                        href={course.href}
-                        className="flex items-center py-3 px-4 pl-8 text-base font-medium text-gray-900 hover:bg-indigo-50 hover:text-indigo-600 rounded-md"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {course.title}
-                      </Link>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Mentors Section */}
@@ -297,32 +267,6 @@ const ListItem = ({ className, title, children, href, ...props }: any) => {
     </li>
   );
 };
-
-const courses = [
-  {
-    title: "Freshman Mathematics",
-    href: "/courses/freshman-mathematics",
-    description: "learn freshman mathematics and conquer your examinations.",
-  },
-  {
-    title: "Freshman physics",
-    href: "/courses/freshman-physics",
-    description:
-      "Master broad concepts in physics and help yourself to get the field you want.",
-  },
-  {
-    title: "Logic and Critical thinking",
-    href: "/courses/logic-critical-thinking",
-    description:
-      "think critically and logically after finishing the course and conquer the exam.",
-  },
-  {
-    title: "Freshman Psycology",
-    href: "/courses/freshman-psycology",
-    description:
-      "apart from examination, learn and undestand the human pyscology",
-  },
-];
 
 const mentors = [
   {
