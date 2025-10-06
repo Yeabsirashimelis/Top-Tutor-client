@@ -4,19 +4,18 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const scrollPosition = useRef(0);
+  const { data: session, status } = useSession();
 
   // Handle body scrolling without causing layout shift
   useEffect(() => {
@@ -90,50 +89,31 @@ export default function Navbar() {
                     </NavigationMenuLink>
                   </NavigationMenuItem>
 
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger className="text-sm">
-                      Mentors
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                        {mentors.map((mentor) => (
-                          <ListItem
-                            key={mentor.title}
-                            title={mentor.title}
-                            href={mentor.href}
-                            className=""
-                          >
-                            {mentor.description}
-                          </ListItem>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
+                  {/* <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link href="/contact-us">Contact Us</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem> */}
 
-                  <NavigationMenuItem>
+                  {/* <NavigationMenuItem>
                     <NavigationMenuLink asChild>
                       <Link href="/about">About</Link>
                     </NavigationMenuLink>
-                  </NavigationMenuItem>
+                  </NavigationMenuItem> */}
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center gap-4">
-              <Link href="/signin">
-                <Button
-                  variant="ghost"
-                  className="text-sm text-indigo-600 font-semibold hover:bg-indigo-50"
+            {/* sign out */}
+            {!session ? null : (
+              <div className=" items-center gap-4 hidden md:flex">
+                <button
+                  className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  onClick={() => signOut()}
                 >
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button className="text-sm bg-indigo-600 hover:bg-indigo-700">
-                  Register
-                </Button>
-              </Link>
-            </div>
+                  Sign Out
+                </button>
+              </div>
+            )}
             {/* Mobile Menu Button */}
             <button
               className="flex md:hidden"
@@ -186,59 +166,43 @@ export default function Navbar() {
                 </Link>
 
                 {/* Courses Section */}
-                <div className="mt-2 mb-2">
-                  <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Courses
-                  </h3>
-                </div>
-
-                {/* Mentors Section */}
-                <div className="mt-2 mb-2">
-                  <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Mentors
-                  </h3>
-                  <div className="space-y-1">
-                    {mentors.map((mentor) => (
-                      <Link
-                        key={mentor.title}
-                        href={mentor.href}
-                        className="flex items-center py-3 px-4 pl-8 text-base font-medium text-gray-900 hover:bg-indigo-50 hover:text-indigo-600 rounded-md"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {mentor.title}
-                      </Link>
-                    ))}
+                <Link href="courses">
+                  {" "}
+                  <div className="mt-2 mb-2">
+                    <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Courses
+                    </h3>
                   </div>
-                </div>
+                </Link>
 
-                <Link
+                {/* Contact Us Section */}
+                {/* <div className="mt-2 mb-2">
+                  <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Contact Us
+                  </h3>
+                </div> */}
+
+                {/* <Link
                   href="/about"
                   className="flex items-center py-3 px-4 text-base font-medium text-gray-900 hover:bg-indigo-50 hover:text-indigo-600 rounded-md"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   About
-                </Link>
+                </Link> */}
               </nav>
             </div>
 
-            {/* Auth buttons */}
-            <div className="p-4 border-t border-gray-200">
-              <div className="grid grid-cols-2 gap-4">
-                <Link href="/signin" onClick={() => setIsMenuOpen(false)}>
-                  <Button
-                    variant="outline"
-                    className="w-full border-indigo-200 text-indigo-600 hover:bg-indigo-50"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                    Register
-                  </Button>
-                </Link>
+            {/* signout */}
+            {!session ? null : (
+              <div className="flex justify-center mb-5 items-center gap-4 ">
+                <button
+                  className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  onClick={() => signOut()}
+                >
+                  Sign Out
+                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

@@ -33,6 +33,7 @@ export default function CourseNotes({
     sectionId,
     userId
   );
+  console.log(notes);
   const createNoteMutation = useCreateNote();
   const updateNoteMutation = useUpdateNote();
   const deleteNoteMutation = useDeleteNote();

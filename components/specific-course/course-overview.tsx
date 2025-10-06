@@ -9,6 +9,7 @@ import {
   ThumbsUp,
   Star,
 } from "lucide-react";
+import Image from "next/image";
 
 interface CourseOverviewProps {
   course: Course;
@@ -28,11 +29,13 @@ export default function CourseOverview({
     <div className="space-y-8">
       {/* Course Cover Image */}
       {course.coverImage && (
-        <div className="w-full h-60 md:h-80 overflow-hidden rounded-lg">
-          <img
+        <div className="relative w-full h-60 md:h-80 overflow-hidden rounded-lg">
+          <Image
             src={course.coverImage}
             alt={course.title}
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
         </div>
       )}
@@ -85,9 +88,11 @@ export default function CourseOverview({
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Instructor</h3>
         <div className="flex gap-4">
-          <img
+          <Image
             src={course.instructor.avatar}
             alt="Instructor"
+            width={64}
+            height={64}
             className="rounded-md h-16 w-16 object-cover"
           />
           <div>

@@ -16,6 +16,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import RatingPrompt from "@/components/specific-course/rating-prompt";
 import { useGetCourseRating } from "@/hooks/course-rating-hooks";
+import QuizPlayer from "@/components/specific-course/quiz-player";
+import Spinner from "@/components/spinner";
+import { useGetPaymentStatus } from "@/hooks/payment-status-hooks";
 
 export default function CoursePage() {
   const { courseId } = useParams();
@@ -27,19 +30,32 @@ export default function CoursePage() {
     isLoading: courseLoading,
     error: courseError,
   } = useGetCourse(courseId! as string);
+
   const { data: access, isLoading: accessLoading } = useCourseAccess(
     courseId! as string,
     userId
   );
+
+  const { data: paymentStatus, isLoading: paymentStatusLoading } =
+    useGetPaymentStatus(courseId! as string, userId);
+
   const { data: progress } = useCourseProgress(userId!, courseId! as string, {
     enabled: !!access && !!userId,
   });
 
   const { data: ratingData } = useGetCourseRating(courseId! as string, userId!);
-  console.log(ratingData);
+
   const [userRating, setUserRating] = useState<number | null>(null);
   const [userComment, setUserComment] = useState<string>("");
   const [showRatingPopup, setShowRatingPopup] = useState(false);
+  const [activeQuiz, setActiveQuiz] = useState<{
+    quizId: string;
+    sectionId: string;
+  } | null>(null);
+  const [currentQuiz, setCurrentQuiz] = useState<{
+    quizId: string;
+    sectionId: string;
+  } | null>(null);
 
   const [currentLecture, setCurrentLecture] = useState<{
     sectionId: string;
@@ -101,10 +117,33 @@ export default function CoursePage() {
     }
   }, [overallProgress, ratingData]);
 
-  if (courseLoading || accessLoading) return <div>Loading course...</div>;
+  if (courseLoading || accessLoading) {
+    return <Spinner loading={courseLoading} />;
+  }
   if (courseError || !course) return <div>Error loading course</div>;
 
   if (!access) {
+    // User has not been granted access yet
+    if (paymentStatusLoading) return <Spinner loading={paymentStatusLoading} />;
+
+    if (paymentStatus?.status === "pending") {
+      return (
+        <div className="p-6 max-w-4xl mx-auto space-y-6">
+          <CourseOverview course={course} access={access} />
+          <div className="border rounded-md p-4 bg-yellow-50">
+            <h3 className="text-lg font-medium text-yellow-800">
+              Payment Pending
+            </h3>
+            <p className="text-sm text-yellow-700">
+              We’ve received your payment receipt. An administrator will verify
+              it shortly. You’ll be notified once your access is approved.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // No pending payment yet → show payment form
     return (
       <div className="p-6 max-w-4xl mx-auto space-y-6">
         <CourseOverview course={course} access={access} />
@@ -132,7 +171,9 @@ export default function CoursePage() {
         userRating={userRating}
         userComment={userComment}
         onRateClick={() => setShowRatingPopup(true)}
+        course={course}
       />
+
       <RatingPrompt
         overallProgress={overallProgress}
         initialComment={userComment}
@@ -147,24 +188,55 @@ export default function CoursePage() {
         }}
         ratingLoaded={!!ratingData}
       />
+
       <div className="flex flex-col lg:flex-row flex-1">
         <div className="w-full lg:w-3/4 flex-1">
-          <CoursePlayer
-            lecture={current}
-            courseId={courseId! as string}
-            goToNextLecture={() => {
-              if (!currentLecture) return;
-              const currentIndex = allLectures.findIndex(
-                (l) => l._id === currentLecture.lectureId
-              );
-              const nextLecture = allLectures[currentIndex + 1];
-              if (nextLecture)
-                setCurrentLecture({
-                  sectionId: nextLecture.sectionId,
-                  lectureId: nextLecture._id,
-                });
-            }}
-          />
+          {activeQuiz ? (
+            <QuizPlayer
+              courseId={courseId! as string}
+              quizId={activeQuiz.quizId}
+              userId={userId!}
+              onFinish={() => setActiveQuiz(null)}
+            />
+          ) : currentQuiz ? (
+            <QuizPlayer
+              courseId={courseId! as string}
+              quizId={currentQuiz.quizId}
+              userId={userId!}
+              onFinish={() => setCurrentQuiz(null)}
+            />
+          ) : (
+            <CoursePlayer
+              lecture={current}
+              courseId={courseId! as string}
+              onLectureComplete={() => {
+                if (!currentLecture) return;
+
+                const currentIndex = allLectures.findIndex(
+                  (l) => l._id === currentLecture.lectureId
+                );
+                const nextLecture = allLectures[currentIndex + 1];
+
+                if (nextLecture) {
+                  setCurrentLecture({
+                    sectionId: nextLecture.sectionId,
+                    lectureId: nextLecture._id,
+                  });
+                } else {
+                  // Check for a quiz at the end of the section
+                  const sectionQuiz = course.quizzes?.find(
+                    (q: any) => q.section === currentLecture.sectionId
+                  );
+                  if (sectionQuiz) {
+                    setActiveQuiz({
+                      quizId: sectionQuiz._id,
+                      sectionId: sectionQuiz.section,
+                    });
+                  }
+                }
+              }}
+            />
+          )}
 
           <div className="p-4 md:p-6">
             <Tabs defaultValue="notes" className="w-full">
@@ -223,9 +295,12 @@ export default function CoursePage() {
         <div className="w-full lg:w-1/4 border-l">
           <CourseSidebar
             sections={sections}
+            quizzes={course.quizzes}
             currentLecture={currentLecture}
+            currentQuiz={currentQuiz}
             setCurrentLecture={setCurrentLecture}
-            courseId={courseId! as string}
+            setCurrentQuiz={setCurrentQuiz}
+            courseId={courseId!}
             userId={userId}
           />
         </div>

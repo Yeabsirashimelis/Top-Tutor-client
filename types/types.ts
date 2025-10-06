@@ -26,6 +26,27 @@ export type Section = {
   lectures: Lecture[];
 };
 
+export type QuizOption = {
+  text: string;
+  isCorrect: boolean;
+};
+
+export type QuizQuestion = {
+  questionText: string;
+  options: QuizOption[];
+  explanation?: string;
+};
+
+export type Quiz = {
+  _id: string;
+  title: string;
+  section: string; // section ID
+  order: number;
+  questions: QuizQuestion[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type Course = {
   _id: string;
   title: string;
@@ -43,6 +64,7 @@ export type Course = {
   updatedAt?: string;
   instructor: Instructor;
   sections: Section[];
+  quizzes?:Quiz[];
   resources?: { name: string; type: "file" | "link"; url: string }[];
 };
 

@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ChevronLeft, Share2, Star } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { Course } from "@/types/types";
+import ShareBtns from "./share-btns";
 
 interface CourseHeaderProps {
   courseTitle: string;
@@ -13,6 +16,7 @@ interface CourseHeaderProps {
   userRating: number | null;
   userComment?: string;
   onRateClick?: () => void;
+  course: Course;
 }
 
 export default function CourseHeader({
@@ -23,12 +27,16 @@ export default function CourseHeader({
   userRating,
   userComment,
   onRateClick,
+  course,
 }: CourseHeaderProps) {
+  console.log(course);
   const showRatingButton = overallProgress >= 20;
+  const [showShare, setShowShare] = useState(false);
 
   return (
-    <div className="border-b">
+    <div className="border-b relative">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        {/* left */}
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/courses">
@@ -48,14 +56,14 @@ export default function CourseHeader({
           </div>
         </div>
 
+        {/* right */}
         <div className="flex items-center gap-4">
-          <>
-            <span className="text-sm font-medium">{overallProgress}%</span>
-            <Progress
-              value={overallProgress}
-              className="w-24 md:w-40 h-2 [&>[data-state='complete']]:bg-indigo-600"
-            />
-          </>
+          <span className="text-sm font-medium">{overallProgress}%</span>
+          <Progress
+            value={overallProgress}
+            className="w-24 md:w-40 h-2 [&>[data-state='complete']]:bg-indigo-600"
+          />
+
           {showRatingButton && (
             <Button
               variant="ghost"
@@ -75,10 +83,22 @@ export default function CourseHeader({
             </Button>
           )}
 
-          <Button variant="ghost" size="icon">
-            <Share2 className="h-4 w-4" />
-            <span className="sr-only">Share</span>
-          </Button>
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowShare((prev) => !prev)}
+            >
+              <Share2 className="h-4 w-4" />
+              <span className="sr-only">Share</span>
+            </Button>
+
+            {showShare && (
+              <div className="absolute right-0 top-10 z-50 bg-white shadow-md rounded-md p-2">
+                <ShareBtns course={course} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

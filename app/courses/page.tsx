@@ -4,7 +4,7 @@ import Search from "@/components/courses/Search";
 export default function CoursesPage() {
   return (
     <div>
-      <Search />
+      {/* <Search /> */}
       <CourseList />
     </div>
   );

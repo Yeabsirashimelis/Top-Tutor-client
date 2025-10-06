@@ -16,7 +16,6 @@ export const metadata: Metadata = {
   title: "Top Tutor",
   description: "An engaging and intuitive way to learn online.",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,16 +23,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body
+        className={`${inter.variable} antialiased flex flex-col min-h-screen`}
+      >
         <AuthProvider>
           <ProtectedRoute>
             <Providers>
+              {/* Navbar */}
               <Navbar />
-              {children}
+
+              {/* Main content */}
+              <main className="flex-1">{children}</main>
+
+              {/* Footer */}
+              <Footer />
             </Providers>
           </ProtectedRoute>
         </AuthProvider>
-        <Footer />
       </body>
     </html>
   );

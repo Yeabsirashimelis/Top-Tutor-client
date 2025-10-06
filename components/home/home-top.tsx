@@ -22,10 +22,10 @@ export default function HomeTop() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="#"
+                href="/courses"
                 className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors"
               >
-                Get Started
+                Browse Courses
               </Link>
               <Link
                 href="#"

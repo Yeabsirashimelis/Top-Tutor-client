@@ -13,13 +13,14 @@ interface Lecture {
 interface CoursePlayerProps {
   lecture?: Lecture | null;
   courseId: string;
-  goToNextLecture?: () => void;
+  /** Called when the current lecture is fully watched and marked complete */
+  onLectureComplete?: () => void;
 }
 
 export default function CoursePlayer({
   lecture,
   courseId,
-  goToNextLecture,
+  onLectureComplete,
 }: CoursePlayerProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -30,6 +31,7 @@ export default function CoursePlayer({
   const handleVideoEnded = () => {
     if (!lecture || !userId) return;
 
+    // Mark lecture complete in the backend
     lectureProgress.mutate(
       {
         lectureId: lecture._id,
@@ -38,8 +40,8 @@ export default function CoursePlayer({
       },
       {
         onSuccess: () => {
-          // Move to next lecture automatically
-          if (goToNextLecture) goToNextLecture();
+          // Hand control back to parent (could be next lecture or a quiz)
+          onLectureComplete?.();
         },
       }
     );
@@ -47,7 +49,7 @@ export default function CoursePlayer({
 
   if (!lecture) {
     return (
-      <div className="flex items-center  relative bg-black w-full aspect-video justify-center h-full text-white">
+      <div className="flex items-center justify-center relative bg-black w-full aspect-video text-white">
         No lecture selected
       </div>
     );
@@ -59,9 +61,9 @@ export default function CoursePlayer({
         ref={videoRef}
         className="w-full h-full"
         controls
-        poster="..."
         src={lecture.videoUrl}
         onEnded={handleVideoEnded}
+        poster="/placeholder-video.jpg" // change to your poster image
       >
         Your browser does not support the video tag.
       </video>

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbo: {
+    resolveAlias: {},
+  },
   images: {
     remotePatterns: [
       {

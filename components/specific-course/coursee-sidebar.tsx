@@ -29,18 +29,30 @@ interface Section {
   lectures: Lecture[];
 }
 
+interface Quiz {
+  _id: string;
+  title: string;
+  section: string;
+}
+
 interface CourseSidebarProps {
   sections: Section[];
+  quizzes?: Quiz[];
   currentLecture?: { sectionId: string; lectureId: string } | null;
+  currentQuiz?: { quizId: string; sectionId: string } | null;
   setCurrentLecture: (val: { sectionId: string; lectureId: string }) => void;
+  setCurrentQuiz: (val: { quizId: string; sectionId: string }) => void;
   courseId: string;
   userId?: string;
 }
 
 export default function CourseSidebar({
   sections,
+  quizzes,
   currentLecture,
+  currentQuiz,
   setCurrentLecture,
+  setCurrentQuiz,
   courseId,
   userId,
 }: CourseSidebarProps) {
@@ -73,6 +85,11 @@ export default function CourseSidebar({
     return progress.lecturesProgress.find(
       (lp: any) => lp.lecture === lectureId
     );
+  };
+
+  const getQuizProgress = (quizId: string) => {
+    if (!progress?.quizzesProgress) return null;
+    return progress.quizzesProgress.find((qp: any) => qp.quiz === quizId);
   };
 
   return (
@@ -153,8 +170,7 @@ export default function CourseSidebar({
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
                             <span>
-                              {formatDuration(lecture.lectureDuration) ||
-                                "0:00"}
+                              {formatDuration(lecture.lectureDuration) || "0:00"}
                             </span>
                             {lecture.resources?.length ? (
                               <>
@@ -167,6 +183,37 @@ export default function CourseSidebar({
                       </div>
                     );
                   })}
+
+                  {/* Quizzes */}
+                  {quizzes
+                    ?.filter((q) => q.section === section._id)
+                    .map((quiz) => {
+                      const isCurrent = currentQuiz?.quizId === quiz._id;
+                      const quizProg = getQuizProgress(quiz._id);
+                      const isCompleted = quizProg?.attempts?.length > 0;
+
+                      return (
+                        <div
+                          key={quiz._id}
+                          className={cn(
+                            "flex items-center gap-2 p-2 text-sm rounded-md hover:bg-muted cursor-pointer",
+                            isCurrent && "bg-muted"
+                          )}
+                          onClick={() =>
+                            setCurrentQuiz({ quizId: quiz._id, sectionId: quiz.section })
+                          }
+                        >
+                          <div className="mt-0.5">
+                            {isCompleted ? (
+                              <CheckCircle2 className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <Circle className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="flex-1 font-medium">{quiz.title}</div>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>

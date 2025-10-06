@@ -2,10 +2,14 @@
 
 import { useGetCourses } from "@/hooks/course-hooks";
 import CourseCard from "../home/course-card";
+import Spinner from "../spinner";
 
 export default function CourseList() {
-  const { data: courses } = useGetCourses();
-  console.log(courses);
+  const { data: courses, isPending: isLoadingCourses } = useGetCourses();
+
+  if (isLoadingCourses) {
+    return <Spinner loading={isLoadingCourses} />;
+  }
   return (
     <div className="mt-8">
       <div className="w-[95%] mx-auto px-4 py-3">

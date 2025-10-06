@@ -25,7 +25,13 @@ export default function CourseCard(course: CourseCardProps) {
     >
       <CardHeader className="p-0 relative">
         <div className="relative h-48 w-full">
-          <Image src={coverImage} alt={title} fill className="object-cover" />
+          {coverImage ? (
+            <Image src={coverImage} alt={title} fill className="object-cover" />
+          ) : (
+            <div className="bg-gray-200 h-full w-full flex items-center justify-center">
+              <span className="text-gray-500">No Image</span>
+            </div>
+          )}
           <Badge
             variant="secondary"
             className="absolute top-3 left-3 bg-white/80 hover:bg-white/80 text-primary font-medium"
