@@ -264,15 +264,15 @@ export default function Footer() {
           {" "}
           <p>© {new Date().getFullYear()} TOP-TUTOR. All rights reserved.</p>
           <div className="flex gap-4 sm:gap-8">
-            <Link href="/terms" className="hover:text-white transition-colors">
+            {/* <Link href="/terms" className="hover:text-white transition-colors">
               Terms of Service
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               href="/privacy"
               className="hover:text-white transition-colors"
             >
               Privacy Policy
-            </Link>
+            </Link> */}
           </div>
         </div>
 

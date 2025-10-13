@@ -7,6 +7,7 @@ export type Instructor = {
   reviewsCount: number;
   totalStudents: number;
   rating: number;
+  avatar: string;
 };
 
 export type Lecture = {
@@ -64,7 +65,7 @@ export type Course = {
   updatedAt?: string;
   instructor: Instructor;
   sections: Section[];
-  quizzes?:Quiz[];
+  quizzes?: Quiz[];
   resources?: { name: string; type: "file" | "link"; url: string }[];
 };
 

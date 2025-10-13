@@ -217,15 +217,41 @@ export default function CoursePage() {
                 );
                 const nextLecture = allLectures[currentIndex + 1];
 
+                const currentSectionId = currentLecture.sectionId;
+
+                // If there's a next lecture
                 if (nextLecture) {
-                  setCurrentLecture({
-                    sectionId: nextLecture.sectionId,
-                    lectureId: nextLecture._id,
-                  });
+                  const isNextInSameSection =
+                    nextLecture.sectionId === currentSectionId;
+
+                  if (isNextInSameSection) {
+                    // Continue to next lecture in the same section
+                    setCurrentLecture({
+                      sectionId: nextLecture.sectionId,
+                      lectureId: nextLecture._id,
+                    });
+                  } else {
+                    // End of section — check for a quiz before moving to next section
+                    const sectionQuiz = course.quizzes?.find(
+                      (q: any) => q.section === currentSectionId
+                    );
+                    if (sectionQuiz) {
+                      setActiveQuiz({
+                        quizId: sectionQuiz._id,
+                        sectionId: sectionQuiz.section,
+                      });
+                    } else {
+                      // No quiz → go to next section’s first lecture
+                      setCurrentLecture({
+                        sectionId: nextLecture.sectionId,
+                        lectureId: nextLecture._id,
+                      });
+                    }
+                  }
                 } else {
-                  // Check for a quiz at the end of the section
+                  // No more lectures at all — final section, check if there’s a quiz
                   const sectionQuiz = course.quizzes?.find(
-                    (q: any) => q.section === currentLecture.sectionId
+                    (q: any) => q.section === currentSectionId
                   );
                   if (sectionQuiz) {
                     setActiveQuiz({
@@ -300,7 +326,7 @@ export default function CoursePage() {
             currentQuiz={currentQuiz}
             setCurrentLecture={setCurrentLecture}
             setCurrentQuiz={setCurrentQuiz}
-            courseId={courseId!}
+            courseId={courseId! as string}
             userId={userId}
           />
         </div>

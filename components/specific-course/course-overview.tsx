@@ -88,6 +88,7 @@ export default function CourseOverview({
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Instructor</h3>
         <div className="flex gap-4">
+          k
           <Image
             src={course.instructor.avatar}
             alt="Instructor"

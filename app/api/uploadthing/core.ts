@@ -1,6 +1,4 @@
-import getSession from "@/lib/getSessionUser";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 

@@ -2,7 +2,7 @@ import { betterFetch } from "@better-fetch/fetch";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export interface PaymentPayload {
-  userId: string;
+  userId?: string;
   courseId?: string;
   collectionId?: string;
   amount: number;

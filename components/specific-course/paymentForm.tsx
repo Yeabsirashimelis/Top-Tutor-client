@@ -13,7 +13,7 @@ interface PaymentFormProps {
 
 export default function PaymentForm({ courseId }: PaymentFormProps) {
   const { data: session } = useSession();
-  const userId = session?.user?.id;
+  const userId = session?.user.id;
 
   const [amount, setAmount] = useState("");
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
