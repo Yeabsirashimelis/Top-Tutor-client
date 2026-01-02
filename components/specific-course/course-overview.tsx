@@ -6,10 +6,12 @@ import {
   FileText,
   Globe,
   MessageSquare,
-  ThumbsUp,
   Star,
 } from "lucide-react";
 import Image from "next/image";
+import RelatedCourses from "../home/related-courses";
+import WishlistButton from "../courses/wishlist-button";
+import ShareButtons from "./share-btns";
 
 interface CourseOverviewProps {
   course: Course;
@@ -39,6 +41,12 @@ export default function CourseOverview({
           />
         </div>
       )}
+
+      {/* Course Actions */}
+      <div className="flex items-center gap-4">
+        <WishlistButton courseId={course._id} showLabel={true} className="px-4 py-2 border rounded-lg hover:bg-gray-50" />
+        <ShareButtons course={course} />
+      </div>
 
       {/* About This Course */}
       <div className="space-y-4">
@@ -88,7 +96,6 @@ export default function CourseOverview({
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Instructor</h3>
         <div className="flex gap-4">
-          k
           <Image
             src={course.instructor.avatar}
             alt="Instructor"
@@ -135,6 +142,9 @@ export default function CourseOverview({
           </p>
         </div>
       )}
+
+      {/* Related Courses */}
+      <RelatedCourses currentCourse={course} />
     </div>
   );
 }

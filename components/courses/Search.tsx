@@ -3,9 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import clsx from "clsx";
-import { SearchCheck, SearchIcon } from "lucide-react";
+import { SearchIcon, X } from "lucide-react";
 
-export default function Search() {
+interface SearchProps {
+  value: string;
+  onChange: (value: string) => void;
+  onClear?: () => void;
+}
+
+export default function Search({ value, onChange, onClear }: SearchProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isStickyVisible, setIsStickyVisible] = useState(false);
 
@@ -27,16 +33,32 @@ export default function Search() {
     };
   }, []);
 
+  const handleClear = () => {
+    onChange("");
+    onClear?.();
+  };
+
   return (
     <>
       <div ref={ref} className="my-8 relative">
         <div className="relative w-full max-w-3xl">
           <Input
             type="text"
-            placeholder="Search for anything"
+            placeholder="Search for courses, topics, or instructors..."
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
             className="w-full text-base px-4 pr-12 py-6 border rounded-2xl shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
           />
-          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+          <div className="absolute inset-y-0 right-4 flex items-center gap-2">
+            {value && (
+              <button
+                onClick={handleClear}
+                className="text-gray-400 hover:text-gray-600 transition"
+                aria-label="Clear search"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
             <SearchIcon className="text-indigo-600 w-7 h-7" />
           </div>
         </div>
@@ -53,10 +75,21 @@ export default function Search() {
           <div className="w-full max-w-3xl relative">
             <Input
               type="text"
-              placeholder="Search for anything"
+              placeholder="Search for courses, topics, or instructors..."
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
               className="w-full max-w-3xl text-base px-4 py-6 border rounded-2xl shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
             />
-            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 right-4 flex items-center gap-2">
+              {value && (
+                <button
+                  onClick={handleClear}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                  aria-label="Clear search"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
               <SearchIcon className="text-indigo-600 w-7 h-7" />
             </div>
           </div>

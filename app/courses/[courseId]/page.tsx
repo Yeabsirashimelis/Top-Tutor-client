@@ -117,6 +117,22 @@ export default function CoursePage() {
     }
   }, [overallProgress, ratingData]);
 
+  // Track course view for recently viewed
+  useEffect(() => {
+    if (userId && courseId) {
+      // Track view after a short delay to avoid tracking quick bounces
+      const timer = setTimeout(() => {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/recently-viewed`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, courseId }),
+        }).catch((err) => console.error("Failed to track view:", err));
+      }, 3000); // Track after 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [userId, courseId]);
+
   if (courseLoading || accessLoading) {
     return <Spinner loading={courseLoading} />;
   }
