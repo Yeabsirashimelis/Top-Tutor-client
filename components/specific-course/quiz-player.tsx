@@ -1,6 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useGetQuiz, useSubmitQuizAttempt } from "@/hooks/quiz-hooks";
+import { Clock, AlertCircle, CheckCircle, XCircle, Trophy, Timer } from "lucide-react";
+
+interface Answer {
+  questionIndex: number;
+  answer: any; // can be number, number[], or string
+}
 
 export default function QuizPlayer({
   courseId,
@@ -20,14 +26,83 @@ export default function QuizPlayer({
   const progress = data?.progress; // array of attempts
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [correctCount, setCorrectCount] = useState(0);
+  const [answers, setAnswers] = useState<Answer[]>([]);
   const [checked, setChecked] = useState(false);
   const [finished, setFinished] = useState(false);
   const [retry, setRetry] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [quizStartTime] = useState(Date.now());
+  const [showReview, setShowReview] = useState(false);
 
-  if (isLoading) return <div>Loading quiz…</div>;
-  if (!quiz) return <div>Quiz not found</div>;
+  // Randomize questions and options if enabled
+  const shuffledQuiz = useMemo(() => {
+    if (!quiz) return null;
+    
+    let questions = [...quiz.questions];
+    
+    // Randomize questions
+    if (quiz.randomizeQuestions) {
+      questions = questions.sort(() => Math.random() - 0.5);
+    }
+    
+    // Randomize options
+    if (quiz.randomizeOptions) {
+      questions = questions.map((q: any) => {
+        if (q.questionType === "multiple-choice" || q.questionType === "multiple-select") {
+          const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+          return { ...q, options: shuffledOptions };
+        }
+        return q;
+      });
+    }
+    
+    return { ...quiz, questions };
+  }, [quiz]);
+
+  // Timer logic
+  useEffect(() => {
+    if (!shuffledQuiz || !shuffledQuiz.timeLimit || shuffledQuiz.timeLimit === 0) return;
+    
+    const totalSeconds = shuffledQuiz.timeLimit * 60;
+    setTimeRemaining(totalSeconds);
+    
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          // Auto-submit when time runs out
+          handleAutoSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [shuffledQuiz]);
+
+  const handleAutoSubmit = () => {
+    if (!shuffledQuiz) return;
+    const { score, correctCount } = calculateScore();
+    const passed = score >= (shuffledQuiz.passingScore || 70);
+    const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
+    
+    submit.mutate(
+      { 
+        courseId, 
+        quizId, 
+        userId, 
+        score, 
+        passed,
+        answers,
+        timeTaken 
+      },
+      { onSuccess: () => setFinished(true) }
+    );
+  };
+
+  if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
+  if (!quiz || !shuffledQuiz) return <div className="p-8 text-center text-gray-500">Quiz not found</div>;
 
   const previousAttempts = progress || [];
   const lastAttempt = previousAttempts[previousAttempts.length - 1];
