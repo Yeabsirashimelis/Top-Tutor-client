@@ -39,9 +39,13 @@ export default function CoursePage() {
   const { data: paymentStatus, isLoading: paymentStatusLoading } =
     useGetPaymentStatus(courseId! as string, userId);
 
-  const { data: progress } = useCourseProgress(userId!, courseId! as string, {
-    enabled: !!access && !!userId,
-  });
+  const { data: progress, refetch: refetchProgress } = useCourseProgress(
+    userId!,
+    courseId! as string,
+    {
+      enabled: !!access && !!userId,
+    }
+  );
 
   const { data: ratingData } = useGetCourseRating(courseId! as string, userId!);
 
@@ -61,6 +65,8 @@ export default function CoursePage() {
     sectionId: string;
     lectureId: string;
   } | null>(null);
+
+  const [courseCompleted, setCourseCompleted] = useState(false);
 
   const allLectures = useMemo(
     () =>
@@ -101,8 +107,27 @@ export default function CoursePage() {
       );
       return lp?.isCompleted === true;
     }).length;
+    
+    // If we're on the last lecture and it's not completed yet, 
+    // calculate progress excluding the current lecture to show progress "before" completing it
+    if (currentLecture) {
+      const currentIndex = allLectures.findIndex(
+        (l) => l._id === currentLecture.lectureId
+      );
+      const isLastLecture = currentIndex === allLectures.length - 1;
+      const currentLectureProgress = progress?.lecturesProgress?.find(
+        (p: any) => p.lecture === currentLecture.lectureId
+      );
+      
+      // If on last lecture and it's marked complete, but we haven't transitioned yet
+      if (isLastLecture && currentLectureProgress?.isCompleted && !courseCompleted) {
+        // Show progress as if the last lecture is not yet complete
+        return Math.round(((completedCount - 1) / allLectures.length) * 100);
+      }
+    }
+    
     return Math.round((completedCount / allLectures.length) * 100);
-  }, [progress, allLectures]);
+  }, [progress, allLectures, currentLecture, courseCompleted]);
 
   useEffect(() => {
     if (ratingData) {
@@ -116,6 +141,22 @@ export default function CoursePage() {
       setShowRatingPopup(true);
     }
   }, [overallProgress, ratingData]);
+
+  // Check if course is completed when progress reaches 100%
+  useEffect(() => {
+    if (
+      overallProgress === 100 &&
+      allLectures.length > 0 &&
+      !courseCompleted &&
+      !activeQuiz
+    ) {
+      // Small delay to ensure UI updates
+      const timer = setTimeout(() => {
+        setCourseCompleted(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [overallProgress, allLectures.length, courseCompleted, activeQuiz]);
 
   // Track course view for recently viewed
   useEffect(() => {
@@ -207,12 +248,60 @@ export default function CoursePage() {
 
       <div className="flex flex-col lg:flex-row flex-1">
         <div className="w-full lg:w-3/4 flex-1">
-          {activeQuiz ? (
+          {courseCompleted ? (
+            <div className="flex flex-col items-center justify-center p-12 bg-gradient-to-br from-gray-50 to-white min-h-[500px]">
+              <div className="text-center space-y-6 max-w-2xl">
+                <div className="text-6xl mb-4">🎉</div>
+                <h2 className="text-4xl font-bold text-black">
+                  Congratulations!
+                </h2>
+                <p className="text-xl text-gray-700">
+                  You've successfully completed{" "}
+                  <span className="font-semibold">{course.title}</span>
+                </p>
+                <div className="bg-white border-2 border-gray-800 rounded-lg p-6 shadow-lg">
+                  <p className="text-gray-600 mb-4">
+                    You've mastered all {allLectures.length} lectures in this
+                    course.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-lg font-semibold text-black">
+                    <span>Course Progress:</span>
+                    <span className="text-2xl">{overallProgress}%</span>
+                  </div>
+                </div>
+                <div className="flex gap-4 justify-center mt-8">
+                  <button
+                    onClick={() => setCourseCompleted(false)}
+                    className="px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg transition-all"
+                  >
+                    Review Lectures
+                  </button>
+                  {(!userRating || userRating === 0) && (
+                    <button
+                      onClick={() => setShowRatingPopup(true)}
+                      className="px-6 py-3 bg-black hover:bg-gray-800 text-white font-semibold rounded-lg transition-all"
+                    >
+                      Rate This Course
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : activeQuiz ? (
             <EnhancedQuizPlayer
               courseId={courseId! as string}
               quizId={activeQuiz.quizId}
               userId={userId!}
-              onFinish={() => setActiveQuiz(null)}
+              onFinish={() => {
+                setActiveQuiz(null);
+                // Check if course is complete after quiz
+                const currentIndex = allLectures.findIndex(
+                  (l) => l._id === currentLecture?.lectureId
+                );
+                if (currentIndex === allLectures.length - 1) {
+                  setCourseCompleted(true);
+                }
+              }}
             />
           ) : currentQuiz ? (
             <EnhancedQuizPlayer
@@ -234,6 +323,9 @@ export default function CoursePage() {
                 const nextLecture = allLectures[currentIndex + 1];
 
                 const currentSectionId = currentLecture.sectionId;
+
+                // Check if this was the last lecture
+                const isLastLecture = currentIndex === allLectures.length - 1;
 
                 // If there's a next lecture
                 if (nextLecture) {
@@ -265,7 +357,7 @@ export default function CoursePage() {
                     }
                   }
                 } else {
-                  // No more lectures at all — final section, check if there’s a quiz
+                  // No more lectures at all — final section, check if there's a quiz
                   const sectionQuiz = course.quizzes?.find(
                     (q: any) => q.section === currentSectionId
                   );
@@ -274,26 +366,42 @@ export default function CoursePage() {
                       quizId: sectionQuiz._id,
                       sectionId: sectionQuiz.section,
                     });
+                  } else {
+                    // No quiz and no more lectures - refetch progress and show completion
+                    setTimeout(async () => {
+                      await refetchProgress();
+                      setCourseCompleted(true);
+                    }, 1000);
                   }
                 }
               }}
             />
           )}
 
-          <div className="p-4 md:p-6">
+          <div className="p-4 md:p-6 ">
             <Tabs defaultValue="notes" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100">
                 <TabsTrigger
                   value="notes"
                   className={cn(
-                    "transition-colors text-black",
+                    "transition-colors text-gray-700",
                     "data-[state=active]:bg-gray-800 data-[state=active]:text-white"
                   )}
                 >
                   Notes
                 </TabsTrigger>
-                <TabsTrigger value="overview" className="text-black data-[state=active]:bg-gray-800 data-[state=active]:text-white">Overview</TabsTrigger>
-                <TabsTrigger value="resources" className="text-black data-[state=active]:bg-gray-800 data-[state=active]:text-white">Resources</TabsTrigger>
+                <TabsTrigger
+                  value="overview"
+                  className="text-gray-700 data-[state=active]:bg-gray-800 data-[state=active]:text-white"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger
+                  value="resources"
+                  className="text-gray-700 data-[state=active]:bg-gray-800 data-[state=active]:text-white"
+                >
+                  Resources
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="notes" className="mt-4">
@@ -315,7 +423,9 @@ export default function CoursePage() {
 
               <TabsContent value="resources" className="mt-4">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-black">Course Resources</h3>
+                  <h3 className="text-lg font-medium text-black">
+                    Course Resources
+                  </h3>
                   <ul className="space-y-2">
                     {course.resources?.map((r: any) => (
                       <li

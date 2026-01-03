@@ -256,25 +256,42 @@ export default function AdvancedVideoPlayer({
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!videoRef.current) return;
 
-      switch (e.key) {
+      // Ignore keyboard shortcuts when user is typing in input/textarea
+      const target = e.target as HTMLElement;
+      const tagName = target.tagName?.toUpperCase();
+      
+      // Debug logging
+      console.log('Key pressed:', e.key, 'Target:', tagName);
+      
+      if (
+        tagName === "INPUT" ||
+        tagName === "TEXTAREA" ||
+        target.isContentEditable ||
+        target.getAttribute('contenteditable') === 'true'
+      ) {
+        console.log('Ignoring key press - user is typing in input/textarea');
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
         case " ":
         case "k":
           e.preventDefault();
           handlePlayPause();
           break;
-        case "ArrowLeft":
+        case "arrowleft":
           e.preventDefault();
           handleSkip(-10);
           break;
-        case "ArrowRight":
+        case "arrowright":
           e.preventDefault();
           handleSkip(10);
           break;
-        case "ArrowUp":
+        case "arrowup":
           e.preventDefault();
           handleVolumeChange(Math.min(1, volume + 0.1));
           break;
-        case "ArrowDown":
+        case "arrowdown":
           e.preventDefault();
           handleVolumeChange(Math.max(0, volume - 0.1));
           break;
