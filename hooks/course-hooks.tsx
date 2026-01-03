@@ -7,7 +7,15 @@ export const getCourses = async () => {
     `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/courses/all`
   );
 
-  return res.data?.courses || [];
+  console.log('getCourses response:', res);
+  console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_LINK);
+  
+  if (!res.data) {
+    console.error('No data in response:', res);
+    return [];
+  }
+
+  return res.data.courses || [];
 };
 
 export const getCourse = async (id: string) => {

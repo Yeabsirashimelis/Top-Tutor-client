@@ -33,6 +33,8 @@ export default function QuizPlayer({
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [quizStartTime] = useState(Date.now());
   const [showReview, setShowReview] = useState(false);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [correctCount, setCorrectCount] = useState(0);
 
   // Randomize questions and options if enabled
   const shuffledQuiz = useMemo(() => {
@@ -81,9 +83,42 @@ export default function QuizPlayer({
     return () => clearInterval(interval);
   }, [shuffledQuiz]);
 
+  const calculateScore = () => {
+    if (!shuffledQuiz) return { score: 0, correctCount: 0 };
+    
+    let correct = 0;
+    const totalQuestions = shuffledQuiz.questions.length;
+    
+    answers.forEach((answer) => {
+      const question = shuffledQuiz.questions[answer.questionIndex];
+      if (!question) return;
+      
+      // Handle different question types
+      if (question.questionType === "multiple-choice") {
+        const selectedOption = question.options[answer.answer];
+        if (selectedOption?.isCorrect) correct++;
+      } else if (question.questionType === "multiple-select") {
+        const correctIndexes = question.options
+          .map((opt: any, idx: number) => (opt.isCorrect ? idx : -1))
+          .filter((idx: number) => idx !== -1);
+        const selectedIndexes = Array.isArray(answer.answer) ? answer.answer : [];
+        const isCorrect = 
+          correctIndexes.length === selectedIndexes.length &&
+          correctIndexes.every((idx: number) => selectedIndexes.includes(idx));
+        if (isCorrect) correct++;
+      } else if (question.questionType === "true-false") {
+        const selectedOption = question.options[answer.answer];
+        if (selectedOption?.isCorrect) correct++;
+      }
+    });
+    
+    const score = totalQuestions > 0 ? Math.round((correct / totalQuestions) * 100) : 0;
+    return { score, correctCount: correct };
+  };
+
   const handleAutoSubmit = () => {
     if (!shuffledQuiz) return;
-    const { score, correctCount } = calculateScore();
+    const { score, correctCount: correct } = calculateScore();
     const passed = score >= (shuffledQuiz.passingScore || 70);
     const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
     
@@ -119,7 +154,15 @@ export default function QuizPlayer({
           {lastAttempt.passed ? "You passed! 🎉" : "You failed. ❌"}
         </p>
         <button
-          onClick={() => setRetry(true)}
+          onClick={() => {
+            setRetry(true);
+            setCurrentIndex(0);
+            setAnswers([]);
+            setChecked(false);
+            setFinished(false);
+            setSelected(null);
+            setCorrectCount(0);
+          }}
           className="bg-indigo-600 text-white px-4 py-2 rounded"
         >
           Retry Quiz
@@ -141,7 +184,18 @@ export default function QuizPlayer({
   const handleCheck = () => {
     if (selected === null) return;
     setChecked(true);
-    if (question.options[selected].isCorrect) setCorrectCount(c => c + 1);
+    
+    // Save the answer
+    const newAnswer: Answer = {
+      questionIndex: currentIndex,
+      answer: selected
+    };
+    setAnswers(prev => [...prev.filter(a => a.questionIndex !== currentIndex), newAnswer]);
+    
+    // Update correct count
+    if (question.options[selected].isCorrect) {
+      setCorrectCount(c => c + 1);
+    }
   };
 
   const handleNext = () => {
@@ -152,9 +206,11 @@ export default function QuizPlayer({
     } else {
       // Submit final score
       const score = Math.round((correctCount / totalQuestions) * 100);
-      const passed = score >= 70;
+      const passed = score >= (shuffledQuiz?.passingScore || 70);
+      const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
+      
       submit.mutate(
-        { courseId, quizId, userId, score, passed },
+        { courseId, quizId, userId, score, passed, answers, timeTaken },
         { onSuccess: () => setFinished(true) }
       );
     }

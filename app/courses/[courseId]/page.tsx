@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import RatingPrompt from "@/components/specific-course/rating-prompt";
 import { useGetCourseRating } from "@/hooks/course-rating-hooks";
-import QuizPlayer from "@/components/specific-course/quiz-player";
+import EnhancedQuizPlayer from "@/components/quiz/enhanced-quiz-player";
 import Spinner from "@/components/spinner";
 import { useGetPaymentStatus } from "@/hooks/payment-status-hooks";
 
@@ -208,14 +208,14 @@ export default function CoursePage() {
       <div className="flex flex-col lg:flex-row flex-1">
         <div className="w-full lg:w-3/4 flex-1">
           {activeQuiz ? (
-            <QuizPlayer
+            <EnhancedQuizPlayer
               courseId={courseId! as string}
               quizId={activeQuiz.quizId}
               userId={userId!}
               onFinish={() => setActiveQuiz(null)}
             />
           ) : currentQuiz ? (
-            <QuizPlayer
+            <EnhancedQuizPlayer
               courseId={courseId! as string}
               quizId={currentQuiz.quizId}
               userId={userId!}
