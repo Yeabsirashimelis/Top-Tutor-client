@@ -44,7 +44,7 @@ export default function CourseOverview({
 
       {/* Course Actions */}
       <div className="flex items-center gap-4">
-        <WishlistButton courseId={course._id} showLabel={true} className="px-4 py-2 border border-lime-200 rounded-lg hover:bg-lime-50 text-black" />
+        <WishlistButton courseId={course._id} showLabel={true} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-black" />
         <ShareButtons course={course} />
       </div>
 
@@ -58,7 +58,7 @@ export default function CourseOverview({
               <Clock className="h-4 w-4" />
               Duration
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-600">
               Approx. {totalLectures * 10} min
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function CourseOverview({
               <BarChart3 className="h-4 w-4" />
               Skill Level
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-600">
               {course.skillLevel || "Beginner"}
             </p>
           </div>
@@ -76,7 +76,7 @@ export default function CourseOverview({
               <FileText className="h-4 w-4" />
               Lectures
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-600">
               {totalLectures} lectures
             </p>
           </div>
@@ -85,7 +85,7 @@ export default function CourseOverview({
               <Globe className="h-4 w-4" />
               Language
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-600">
               {course.language || "English"}
             </p>
           </div>
@@ -104,11 +104,11 @@ export default function CourseOverview({
             className="rounded-md h-16 w-16 object-cover"
           />
           <div>
-            <h4 className="font-medium">{course.instructor.name}</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="font-medium text-black">{course.instructor.name}</h4>
+            <p className="text-sm text-gray-600">
               {course.instructor.bio || ""}
             </p>
-            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <Star
@@ -119,7 +119,7 @@ export default function CourseOverview({
               </div>
               <span>{course.instructor.rating} Instructor Rating</span>
             </div>
-            <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <MessageSquare className="h-4 w-4" />
                 {course.instructor.reviewsCount} Reviews
@@ -135,9 +135,9 @@ export default function CourseOverview({
 
       {/* Access */}
       {!access && (
-        <div className="p-6 border border-lime-200 rounded-lg bg-lime-50/30">
-          <h3 className="text-lg font-medium">Get Access to This Course</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+        <div className="p-6 border border-gray-300 rounded-lg bg-gray-50">
+          <h3 className="text-lg font-medium text-black">Get Access to This Course</h3>
+          <p className="text-sm text-gray-700 mb-4">
             Price: ${course.price.toFixed(2)}
           </p>
         </div>

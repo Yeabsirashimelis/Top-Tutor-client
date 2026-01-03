@@ -131,7 +131,7 @@ export default function RatingPrompt({
 
           <textarea
             placeholder="Share your experience with this course... (optional)"
-            className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-gray-800 focus:border-transparent text-black placeholder:text-gray-500"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={4}
@@ -150,7 +150,7 @@ export default function RatingPrompt({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting || userRating === null}
-              className="px-6 bg-blue-600 hover:bg-blue-700"
+              className="px-6 bg-gray-800 hover:bg-gray-900 text-white"
             >
               {isSubmitting ? "Submitting..." : "Submit Review"}
             </Button>

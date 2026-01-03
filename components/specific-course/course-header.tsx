@@ -47,7 +47,7 @@ export default function CourseHeader({
           <div>
             <h1 className="text-lg font-semibold text-black">{courseTitle}</h1>
             {currentSection && currentLecture && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
                 <span>{currentSection}</span>
                 <span>•</span>
                 <span>{currentLecture}</span>
@@ -58,10 +58,10 @@ export default function CourseHeader({
 
         {/* right */}
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium">{overallProgress}%</span>
+          <span className="text-sm font-medium text-black">{overallProgress}%</span>
           <Progress
             value={overallProgress}
-            className="w-24 md:w-40 h-2 [&>[data-state='complete']]:bg-lime-500"
+            className="w-24 md:w-40 h-2 [&>[data-state='complete']]:bg-gray-800"
           />
 
           {showRatingButton && (

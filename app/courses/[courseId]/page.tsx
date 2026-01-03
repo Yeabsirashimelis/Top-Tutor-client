@@ -286,14 +286,14 @@ export default function CoursePage() {
                 <TabsTrigger
                   value="notes"
                   className={cn(
-                    "transition-colors",
-                    "data-[state=active]:bg-indigo-600 data-[state=active]:text-gray-300"
+                    "transition-colors text-black",
+                    "data-[state=active]:bg-gray-800 data-[state=active]:text-white"
                   )}
                 >
                   Notes
                 </TabsTrigger>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="resources">Resources</TabsTrigger>
+                <TabsTrigger value="overview" className="text-black data-[state=active]:bg-gray-800 data-[state=active]:text-white">Overview</TabsTrigger>
+                <TabsTrigger value="resources" className="text-black data-[state=active]:bg-gray-800 data-[state=active]:text-white">Resources</TabsTrigger>
               </TabsList>
 
               <TabsContent value="notes" className="mt-4">
@@ -315,7 +315,7 @@ export default function CoursePage() {
 
               <TabsContent value="resources" className="mt-4">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Course Resources</h3>
+                  <h3 className="text-lg font-medium text-black">Course Resources</h3>
                   <ul className="space-y-2">
                     {course.resources?.map((r: any) => (
                       <li

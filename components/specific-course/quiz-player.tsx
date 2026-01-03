@@ -136,7 +136,7 @@ export default function QuizPlayer({
     );
   };
 
-  if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
+  if (isLoading) return <div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800"></div></div>;
   if (!quiz || !shuffledQuiz) return <div className="p-8 text-center text-gray-500">Quiz not found</div>;
 
   const previousAttempts = progress || [];
@@ -150,7 +150,7 @@ export default function QuizPlayer({
         <p className="text-lg mb-2">
           Score: <span className="font-semibold">{lastAttempt.score}%</span>
         </p>
-        <p className={`text-xl font-bold mb-4 ${lastAttempt.passed ? "text-green-600" : "text-red-600"}`}>
+        <p className={`text-xl font-bold mb-4 ${lastAttempt.passed ? "text-black" : "text-red-600"}`}>
           {lastAttempt.passed ? "You passed! 🎉" : "You failed. ❌"}
         </p>
         <button
@@ -163,13 +163,13 @@ export default function QuizPlayer({
             setSelected(null);
             setCorrectCount(0);
           }}
-          className="bg-indigo-600 text-white px-4 py-2 rounded"
+          className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded"
         >
           Retry Quiz
         </button>
         <button
           onClick={onFinish}
-          className="bg-lime-500 text-black font-semibold px-4 py-2 rounded ml-4"
+          className="bg-black hover:bg-gray-800 text-white font-semibold px-4 py-2 rounded ml-4"
         >
           Continue
         </button>
@@ -226,10 +226,10 @@ export default function QuizPlayer({
           You answered <span className="font-semibold">{correctCount}</span> out of{" "}
           <span className="font-semibold">{totalQuestions}</span> correctly.
         </p>
-        <p className={`text-xl font-bold mb-4 ${passed ? "text-green-600" : "text-red-600"}`}>
+        <p className={`text-xl font-bold mb-4 ${passed ? "text-black" : "text-red-600"}`}>
           {passed ? `Great job! You passed with ${score}%` : `You scored ${score}% — keep practicing!`}
         </p>
-        <button onClick={onFinish} className="bg-indigo-600 text-white px-4 py-2 rounded">
+        <button onClick={onFinish} className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded">
           Continue
         </button>
       </div>
@@ -248,7 +248,7 @@ export default function QuizPlayer({
         const isSelected = selected === oi;
         const color =
           checked && o.isCorrect
-            ? "bg-green-100 border-green-600"
+            ? "bg-gray-100 border-gray-800"
             : checked && isSelected && !o.isCorrect
             ? "bg-red-100 border-red-600"
             : "bg-white border-gray-300";
@@ -272,13 +272,13 @@ export default function QuizPlayer({
         <button
           onClick={handleCheck}
           disabled={selected === null}
-          className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded"
+          className="mt-4 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded disabled:opacity-50"
         >
           Check Answer
         </button>
       ) : (
         <div className="mt-4 space-y-3">
-          <p className={`text-lg font-semibold ${question.options[selected!].isCorrect ? "text-green-700" : "text-red-700"}`}>
+          <p className={`text-lg font-semibold ${question.options[selected!].isCorrect ? "text-black" : "text-red-700"}`}>
             {question.options[selected!].isCorrect ? "✅ Correct!" : "❌ Incorrect"}
           </p>
           {!question.options[selected!].isCorrect && (
@@ -292,7 +292,7 @@ export default function QuizPlayer({
           {question.explanation && <p className="text-gray-600 italic">{question.explanation}</p>}
           <button
             onClick={handleNext}
-            className="bg-indigo-600 text-white px-4 py-2 rounded"
+            className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded"
           >
             {currentIndex + 1 === totalQuestions ? "Finish Quiz" : "Next Question"}
           </button>

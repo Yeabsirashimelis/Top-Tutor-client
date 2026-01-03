@@ -57,8 +57,8 @@ export default function PaymentForm({ courseId }: PaymentFormProps) {
 
   return (
     <div className="border rounded-md p-4 space-y-4">
-      <h3 className="text-lg font-medium">Complete Your Payment</h3>
-      <p className="text-sm text-muted-foreground">
+      <h3 className="text-lg font-medium text-black">Complete Your Payment</h3>
+      <p className="text-sm text-gray-600">
         Please transfer the course fee to our account and upload your payment
         receipt below.
       </p>
@@ -78,7 +78,7 @@ export default function PaymentForm({ courseId }: PaymentFormProps) {
 
       {receiptUrl && (
         <div className="mt-2">
-          <p className="text-sm">Receipt uploaded:</p>
+          <p className="text-sm text-black">Receipt uploaded:</p>
           <img
             src={receiptUrl}
             alt="Receipt"
@@ -90,7 +90,7 @@ export default function PaymentForm({ courseId }: PaymentFormProps) {
       <Button
         onClick={handleSubmit}
         disabled={submitting}
-        className="bg-indigo-600"
+        className="bg-gray-800 hover:bg-gray-900 text-white"
       >
         {submitting ? "Submitting..." : "Submit Payment"}
       </Button>

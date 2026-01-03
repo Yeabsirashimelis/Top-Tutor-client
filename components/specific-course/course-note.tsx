@@ -92,7 +92,7 @@ export default function CourseNotes({
     <div className="space-y-6">
       {/* Add Note */}
       <div className="space-y-2">
-        <h3 className="text-lg font-medium">Your Notes</h3>
+        <h3 className="text-lg font-medium text-black">Your Notes</h3>
         <div className="flex flex-col gap-2">
           <Textarea
             placeholder="Add a note for this section..."
@@ -101,13 +101,13 @@ export default function CourseNotes({
             className="min-h-[100px]"
           />
           <div className="flex justify-between items-center">
-            <div className="text-sm text-muted-foreground flex items-center gap-1">
+            <div className="text-sm text-gray-600 flex items-center gap-1">
               <Clock className="h-4 w-4" />
               <span className="font-bold">Section ID: {sectionId}</span>
             </div>
             <Button
               onClick={handleAddNote}
-              className="bg-indigo-600"
+              className="bg-gray-800 hover:bg-gray-900 text-white"
               disabled={createNoteMutation.isPending}
             >
               {createNoteMutation.isPending ? (
@@ -162,9 +162,9 @@ export default function CourseNotes({
                 </div>
               ) : (
                 <>
-                  <p>{note.content}</p>
+                  <p className="text-black">{note.content}</p>
                   <div className="flex justify-between items-center text-sm">
-                    <div className="text-muted-foreground flex items-center gap-2">
+                    <div className="text-gray-600 flex items-center gap-2">
                       {/* Lecture clickable */}
                       {lecture ? (
                         <span

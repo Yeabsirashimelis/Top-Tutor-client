@@ -96,7 +96,7 @@ export default function CourseSidebar({
     <div className="h-full flex flex-col">
       <div className="p-4 border-b">
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
           <Input
             type="search"
             placeholder="Search lectures"
@@ -120,7 +120,7 @@ export default function CourseSidebar({
             <div key={section._id} className="border-b">
               <Button
                 variant="ghost"
-                className="w-full justify-between p-4 h-auto font-medium"
+                className="w-full justify-between p-4 h-auto font-medium text-black"
                 onClick={() => toggleSection(section._id)}
               >
                 <span className="text-left flex items-center justify-between w-full">
@@ -160,14 +160,14 @@ export default function CourseSidebar({
                       >
                         <div className="mt-0.5">
                           {isCompleted ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                            <CheckCircle2 className="h-4 w-4 text-gray-800" />
                           ) : (
-                            <Circle className="h-4 w-4 text-muted-foreground" />
+                            <Circle className="h-4 w-4 text-gray-400" />
                           )}
                         </div>
                         <div className="flex-1">
-                          <div className="font-medium">{lecture.title}</div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <div className="font-medium text-black">{lecture.title}</div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
                             <Clock className="h-3 w-3" />
                             <span>
                               {formatDuration(lecture.lectureDuration) || "0:00"}
@@ -205,12 +205,12 @@ export default function CourseSidebar({
                         >
                           <div className="mt-0.5">
                             {isCompleted ? (
-                              <CheckCircle2 className="h-4 w-4 text-green-500" />
+                              <CheckCircle2 className="h-4 w-4 text-gray-800" />
                             ) : (
-                              <Circle className="h-4 w-4 text-muted-foreground" />
+                              <Circle className="h-4 w-4 text-gray-400" />
                             )}
                           </div>
-                          <div className="flex-1 font-medium">{quiz.title}</div>
+                          <div className="flex-1 font-medium text-black">{quiz.title}</div>
                         </div>
                       );
                     })}

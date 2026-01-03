@@ -15,7 +15,7 @@ function ShareBtns({ course }: { course: Course }) {
 
   return (
     <div className="border border-gray-400 rounded-md mb-4">
-      <h3 className="text-xl font-bold text-center pt-2">Share This Course</h3>
+      <h3 className="text-xl font-bold text-center pt-2 text-black">Share This Course</h3>
       <div className="flex gap-3 justify-center pb-5">
         <FacebookShareButton url={shareUrl} hashtag={`Personal house ForRent`}>
           <FacebookIcon size={40} round={true} />
