@@ -45,7 +45,7 @@ export default function CourseHeader({
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg font-semibold">{courseTitle}</h1>
+            <h1 className="text-lg font-semibold text-black">{courseTitle}</h1>
             {currentSection && currentLecture && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>{currentSection}</span>
@@ -61,7 +61,7 @@ export default function CourseHeader({
           <span className="text-sm font-medium">{overallProgress}%</span>
           <Progress
             value={overallProgress}
-            className="w-24 md:w-40 h-2 [&>[data-state='complete']]:bg-indigo-600"
+            className="w-24 md:w-40 h-2 [&>[data-state='complete']]:bg-lime-500"
           />
 
           {showRatingButton && (

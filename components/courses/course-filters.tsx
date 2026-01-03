@@ -105,14 +105,14 @@ export default function CourseFilters({
       {/* Filter Panel */}
       <div
         className={clsx(
-          "bg-white border rounded-lg p-4 space-y-4",
+          "bg-white border rounded-lg p-4 space-y-4 relative z-10",
           "lg:block",
           isOpen ? "block" : "hidden"
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b">
-          <h3 className="font-semibold text-lg flex items-center gap-2">
+          <h3 className="font-semibold text-lg flex items-center gap-2 text-black">
             <Filter className="w-5 h-5" />
             Filters
           </h3>
@@ -121,7 +121,7 @@ export default function CourseFilters({
               onClick={clearAllFilters}
               variant="ghost"
               size="sm"
-              className="text-indigo-600 hover:text-indigo-700"
+              className="text-black hover:text-gray-700 font-semibold"
             >
               Clear All
             </Button>
@@ -186,7 +186,7 @@ export default function CourseFilters({
                     className={clsx(
                       filters.priceRange[0] === preset.range[0] &&
                         filters.priceRange[1] === preset.range[1] &&
-                        "bg-indigo-50 border-indigo-500"
+                        "bg-gray-800 text-white border-gray-800"
                     )}
                   >
                     {preset.label}
@@ -224,9 +224,9 @@ export default function CourseFilters({
                     type="checkbox"
                     checked={filters.categories.includes(category)}
                     onChange={() => handleCategoryToggle(category)}
-                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-gray-300 text-gray-800 focus:ring-gray-800"
                   />
-                  <span className="text-sm">{category}</span>
+                  <span className="text-sm text-black">{category}</span>
                 </label>
               ))}
             </div>
@@ -260,9 +260,9 @@ export default function CourseFilters({
                     type="checkbox"
                     checked={filters.skillLevels.includes(level)}
                     onChange={() => handleSkillLevelToggle(level)}
-                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-gray-300 text-gray-800 focus:ring-gray-800"
                   />
-                  <span className="text-sm">{level}</span>
+                  <span className="text-sm text-black">{level}</span>
                 </label>
               ))}
             </div>
@@ -296,9 +296,9 @@ export default function CourseFilters({
                     type="checkbox"
                     checked={filters.languages.includes(language)}
                     onChange={() => handleLanguageToggle(language)}
-                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-gray-300 text-gray-800 focus:ring-gray-800"
                   />
-                  <span className="text-sm">{language}</span>
+                  <span className="text-sm text-black">{language}</span>
                 </label>
               ))}
             </div>
@@ -331,9 +331,9 @@ export default function CourseFilters({
                     name="rating"
                     checked={filters.minRating === rating}
                     onChange={() => handleRatingChange(rating)}
-                    className="border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="border-gray-300 text-gray-800 focus:ring-gray-800"
                   />
-                  <span className="text-sm flex items-center gap-1">
+                  <span className="text-sm flex items-center gap-1 text-black">
                     <span className="text-yellow-500">★</span> {rating} & up
                   </span>
                 </label>
@@ -344,9 +344,9 @@ export default function CourseFilters({
                   name="rating"
                   checked={filters.minRating === 0}
                   onChange={() => handleRatingChange(0)}
-                  className="border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  className="border-gray-300 text-gray-800 focus:ring-gray-800"
                 />
-                <span className="text-sm">All ratings</span>
+                <span className="text-sm text-black">All ratings</span>
               </label>
             </div>
           )}

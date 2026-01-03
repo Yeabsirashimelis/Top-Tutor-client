@@ -44,14 +44,14 @@ export default function CourseOverview({
 
       {/* Course Actions */}
       <div className="flex items-center gap-4">
-        <WishlistButton courseId={course._id} showLabel={true} className="px-4 py-2 border rounded-lg hover:bg-gray-50" />
+        <WishlistButton courseId={course._id} showLabel={true} className="px-4 py-2 border border-lime-200 rounded-lg hover:bg-lime-50 text-black" />
         <ShareButtons course={course} />
       </div>
 
       {/* About This Course */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">About This Course</h3>
-        <p>{course.description}</p>
+        <h3 className="text-lg font-bold text-black">About This Course</h3>
+        <p className="text-gray-700">{course.description}</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm font-medium">
@@ -94,7 +94,7 @@ export default function CourseOverview({
 
       {/* Instructor */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Instructor</h3>
+        <h3 className="text-lg font-bold text-black">Instructor</h3>
         <div className="flex gap-4">
           <Image
             src={course.instructor.avatar}
@@ -135,7 +135,7 @@ export default function CourseOverview({
 
       {/* Access */}
       {!access && (
-        <div className="p-6 border rounded-lg bg-gray-50">
+        <div className="p-6 border border-lime-200 rounded-lg bg-lime-50/30">
           <h3 className="text-lg font-medium">Get Access to This Course</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Price: ${course.price.toFixed(2)}

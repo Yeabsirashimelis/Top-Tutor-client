@@ -64,8 +64,8 @@ export default function CourseSort({ value, onChange }: CourseSortProps) {
                   setIsOpen(false);
                 }}
                 className={clsx(
-                  "w-full text-left px-4 py-2 hover:bg-gray-50 transition flex items-center justify-between",
-                  value === option.value && "bg-indigo-50 text-indigo-600"
+                  "w-full text-left px-4 py-2 hover:bg-gray-100 transition flex items-center justify-between text-black",
+                  value === option.value && "bg-gray-800 text-white font-semibold"
                 )}
               >
                 <span>{option.label}</span>

@@ -47,7 +47,7 @@ export default function Search({ value, onChange, onClear }: SearchProps) {
             placeholder="Search for courses, topics, or instructors..."
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full text-base px-4 pr-12 py-6 border rounded-2xl shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+            className="w-full text-base px-4 pr-12 py-6 border-2 rounded-2xl shadow-md border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 focus:border-gray-800 transition duration-200 text-black placeholder:text-gray-500 bg-white"
           />
           <div className="absolute inset-y-0 right-4 flex items-center gap-2">
             {value && (
@@ -59,7 +59,7 @@ export default function Search({ value, onChange, onClear }: SearchProps) {
                 <X className="w-5 h-5" />
               </button>
             )}
-            <SearchIcon className="text-indigo-600 w-7 h-7" />
+            <SearchIcon className="text-gray-800 w-7 h-7" />
           </div>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function Search({ value, onChange, onClear }: SearchProps) {
       {/* Sticky version shown when scrolled out */}
       <div
         className={clsx(
-          "sticky top-16 z-30 bg-indigo-50 border-t border-b border-gray-100 shadow-sm",
+          "sticky top-16 z-50 bg-white/95 backdrop-blur-sm border-b-2 border-gray-300 shadow-lg",
           isStickyVisible ? "block" : "hidden"
         )}
       >
@@ -78,7 +78,7 @@ export default function Search({ value, onChange, onClear }: SearchProps) {
               placeholder="Search for courses, topics, or instructors..."
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="w-full max-w-3xl text-base px-4 py-6 border rounded-2xl shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+              className="w-full max-w-3xl text-base px-4 py-6 border-2 rounded-2xl shadow-md border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 focus:border-gray-800 transition duration-200 text-black placeholder:text-gray-500 bg-white"
             />
             <div className="absolute inset-y-0 right-4 flex items-center gap-2">
               {value && (
@@ -90,7 +90,7 @@ export default function Search({ value, onChange, onClear }: SearchProps) {
                   <X className="w-5 h-5" />
                 </button>
               )}
-              <SearchIcon className="text-indigo-600 w-7 h-7" />
+              <SearchIcon className="text-gray-800 w-7 h-7" />
             </div>
           </div>
         </div>

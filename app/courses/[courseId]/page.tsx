@@ -174,7 +174,7 @@ export default function CoursePage() {
     : null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white pt-16">
       <CourseHeader
         courseTitle={course.title}
         currentSection={

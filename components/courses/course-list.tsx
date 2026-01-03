@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useGetCourses } from "@/hooks/course-hooks";
-import CourseCard from "../home/course-card";
+import CourseCardLight from "./course-card-light";
 import Spinner from "../spinner";
 import Search from "./Search";
 import CourseFilters, { FilterOptions } from "./course-filters";
@@ -165,12 +165,12 @@ export default function CourseList() {
             {/* Header with results count and sort */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-indigo-600 tracking-tight">
+                <h2 className="text-3xl md:text-4xl font-bold text-black tracking-tight">
                   {searchQuery
                     ? `Search Results for "${searchQuery}"`
                     : "All Courses"}
                 </h2>
-                <p className="text-gray-600 mt-1">
+                <p className="text-gray-700 mt-1 text-lg">
                   {sortedCourses.length} course{sortedCourses.length !== 1 ? "s" : ""}{" "}
                   found
                 </p>
@@ -182,12 +182,12 @@ export default function CourseList() {
             {sortedCourses.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {sortedCourses.map((course) => (
-                  <CourseCard {...course} key={course._id} />
+                  <CourseCardLight {...course} key={course._id} />
                 ))}
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
+                <div className="text-gray-600 mb-4">
                   <svg
                     className="w-24 h-24 mx-auto"
                     fill="none"
@@ -202,10 +202,10 @@ export default function CourseList() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <h3 className="text-xl font-semibold text-black mb-2">
                   No courses found
                 </h3>
-                <p className="text-gray-500 mb-4">
+                <p className="text-gray-600 mb-4">
                   Try adjusting your search or filters
                 </p>
                 <button
@@ -219,7 +219,7 @@ export default function CourseList() {
                       minRating: 0,
                     });
                   }}
-                  className="text-indigo-600 hover:text-indigo-700 font-medium"
+                  className="text-black hover:text-gray-700 font-semibold underline"
                 >
                   Clear all filters
                 </button>

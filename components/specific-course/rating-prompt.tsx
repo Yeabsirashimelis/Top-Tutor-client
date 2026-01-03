@@ -102,7 +102,7 @@ export default function RatingPrompt({
   if (!actualShowPopup) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">

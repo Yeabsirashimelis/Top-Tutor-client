@@ -2,7 +2,7 @@ import CourseList from "@/components/courses/course-list";
 
 export default function CoursesPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-16">
       <CourseList />
     </div>
   );
