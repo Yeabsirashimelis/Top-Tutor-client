@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Top Tutor",
+  title: "እንማር",
   description: "An engaging and intuitive way to learn online.",
 };
 export default function RootLayout({

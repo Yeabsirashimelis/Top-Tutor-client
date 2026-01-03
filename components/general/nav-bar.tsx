@@ -41,16 +41,13 @@ export default function NavBar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
+          <Link href="/" className="flex items-center group">
             <div className="relative">
-              <div className="absolute inset-0 bg-lime-400/20 blur-xl rounded-full group-hover:bg-lime-400/30 transition-all" />
-              <div className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-lime-400 to-green-400 rounded-lg">
-                <span className="text-black font-black text-xl">♠</span>
-              </div>
+              <div className="absolute inset-0 bg-lime-400/20 blur-2xl group-hover:bg-lime-400/30 transition-all duration-300" />
+              <span className="relative text-3xl md:text-4xl font-black bg-gradient-to-r from-lime-400 via-green-400 to-lime-300 bg-clip-text text-transparent hover:from-lime-300 hover:via-green-300 hover:to-lime-400 transition-all duration-300 tracking-tight">
+                እንማር
+              </span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-lime-400 to-green-400 bg-clip-text text-transparent">
-              TopTutor
-            </span>
           </Link>
 
           {/* Desktop Navigation */}
