@@ -40,7 +40,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 pt-32 md:pt-36 pb-8">
       <div className="w-[95%] max-w-7xl mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center gap-3">
@@ -48,7 +48,8 @@ export default function WishlistPage() {
             My Wishlist
           </h1>
           <p className="text-gray-600 mt-2">
-            {wishlist?.length || 0} course{wishlist?.length !== 1 ? "s" : ""} saved
+            {wishlist?.length || 0} course{wishlist?.length !== 1 ? "s" : ""}{" "}
+            saved
           </p>
         </div>
 
