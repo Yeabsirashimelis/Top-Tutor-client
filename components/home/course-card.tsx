@@ -33,9 +33,9 @@ export default function CourseCard(course: CourseCardProps) {
       onHoverStart={() => setIsFlipped(true)}
       onHoverEnd={() => setIsFlipped(false)}
     >
-      <Card className="group relative overflow-hidden cursor-pointer border-2 border-white/20 hover:border-lime-400 transition-all duration-300 bg-white/5 backdrop-blur-sm hover:shadow-xl hover:shadow-lime-400/20">
+      <Card className="group relative overflow-hidden cursor-pointer border-2 border-gray-200 hover:border-lime-400 transition-all duration-300 bg-white hover:shadow-xl hover:shadow-lime-400/20">
         {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-lime-400/0 to-lime-400/5 opacity-0 group-hover:opacity-100 transition-all duration-300 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-lime-400/0 to-lime-400/10 opacity-0 group-hover:opacity-100 transition-all duration-300 z-0" />
 
         <div onClick={() => router.push(`/courses/${_id}`)} className="relative z-10">
           <CardHeader className="p-0 relative overflow-hidden">
@@ -85,20 +85,20 @@ export default function CourseCard(course: CourseCardProps) {
           </CardHeader>
           
           <CardContent className="px-4 py-4 space-y-3">
-            <h3 className="text-lg font-bold text-white line-clamp-2 group-hover:text-lime-400 transition-colors duration-300">
+            <h3 className="text-lg font-bold text-black line-clamp-2 group-hover:text-lime-600 transition-colors duration-300">
               {title}
             </h3>
             <div className="flex items-center gap-2 text-sm">
               <div className="w-8 h-8 rounded-full bg-lime-400 flex items-center justify-center text-black font-bold text-xs border-2 border-white">
                 {instructor?.name?.[0] || "?"}
               </div>
-              <p className="text-white/80 font-medium">
+              <p className="text-gray-700 font-medium">
                 {instructor ? instructor.name : "Unknown"}
               </p>
             </div>
           </CardContent>
           
-          <CardFooter className="px-4 pb-4 pt-0 flex items-center justify-between border-t-2 border-white/20 mt-2">
+          <CardFooter className="px-4 pb-4 pt-0 flex items-center justify-between border-t-2 border-gray-100 mt-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
@@ -106,13 +106,13 @@ export default function CourseCard(course: CourseCardProps) {
                     key={i}
                     className={`h-5 w-5 ${
                       i < Math.floor(ratingsAverage || 0)
-                        ? "fill-lime-400 text-lime-400"
-                        : "fill-white/20 text-white/20"
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "fill-gray-200 text-gray-200"
                     }`}
                   />
                 ))}
               </div>
-              <span className="text-sm font-bold text-white">
+              <span className="text-sm font-bold text-black">
                 {ratingsAverage?.toFixed(1) || "0.0"}
               </span>
             </div>

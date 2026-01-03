@@ -30,12 +30,14 @@ interface Lecture {
 interface AdvancedVideoPlayerProps {
   lecture?: Lecture | null;
   courseId: string;
+  onBeforeLectureComplete?: () => void;
   onLectureComplete?: () => void;
 }
 
 export default function AdvancedVideoPlayer({
   lecture,
   courseId,
+  onBeforeLectureComplete,
   onLectureComplete,
 }: AdvancedVideoPlayerProps) {
   const { data: session } = useSession();
@@ -236,6 +238,9 @@ export default function AdvancedVideoPlayer({
 
   const handleVideoEnded = () => {
     if (!lecture || !userId) return;
+
+    // Call before callback to allow parent to prepare for completion
+    onBeforeLectureComplete?.();
 
     lectureProgress.mutate(
       {

@@ -100,6 +100,9 @@ export default function CoursePage() {
   }, [progress, allLectures, currentLecture]);
 
   const overallProgress = useMemo(() => {
+    // If course is completed, always show 100%
+    if (courseCompleted) return 100;
+    
     if (!allLectures.length) return 0;
     const completedCount = allLectures.filter((lecture) => {
       const lp = progress?.lecturesProgress?.find(
@@ -108,26 +111,8 @@ export default function CoursePage() {
       return lp?.isCompleted === true;
     }).length;
     
-    // If we're on the last lecture and it's not completed yet, 
-    // calculate progress excluding the current lecture to show progress "before" completing it
-    if (currentLecture) {
-      const currentIndex = allLectures.findIndex(
-        (l) => l._id === currentLecture.lectureId
-      );
-      const isLastLecture = currentIndex === allLectures.length - 1;
-      const currentLectureProgress = progress?.lecturesProgress?.find(
-        (p: any) => p.lecture === currentLecture.lectureId
-      );
-      
-      // If on last lecture and it's marked complete, but we haven't transitioned yet
-      if (isLastLecture && currentLectureProgress?.isCompleted && !courseCompleted) {
-        // Show progress as if the last lecture is not yet complete
-        return Math.round(((completedCount - 1) / allLectures.length) * 100);
-      }
-    }
-    
     return Math.round((completedCount / allLectures.length) * 100);
-  }, [progress, allLectures, currentLecture, courseCompleted]);
+  }, [courseCompleted, progress, allLectures]);
 
   useEffect(() => {
     if (ratingData) {

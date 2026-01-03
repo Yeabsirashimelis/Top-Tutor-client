@@ -12,18 +12,21 @@ interface Lecture {
 interface CoursePlayerProps {
   lecture?: Lecture | null;
   courseId: string;
+  onBeforeLectureComplete?: () => void;
   onLectureComplete?: () => void;
 }
 
 export default function CoursePlayer({
   lecture,
   courseId,
+  onBeforeLectureComplete,
   onLectureComplete,
 }: CoursePlayerProps) {
   return (
     <AdvancedVideoPlayer
       lecture={lecture}
       courseId={courseId}
+      onBeforeLectureComplete={onBeforeLectureComplete}
       onLectureComplete={onLectureComplete}
     />
   );
