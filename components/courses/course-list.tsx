@@ -139,7 +139,7 @@ export default function CourseList() {
   }
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 bg-white min-h-screen">
       <div className="w-[95%] mx-auto px-4 py-3">
         {/* Search Bar */}
         <Search

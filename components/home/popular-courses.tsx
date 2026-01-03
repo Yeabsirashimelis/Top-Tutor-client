@@ -3,6 +3,8 @@
 import { useGetCourses } from "@/hooks/course-hooks";
 import CourseCard from "./course-card";
 import Spinner from "../spinner";
+import { motion } from "framer-motion";
+import { Award } from "lucide-react";
 
 export default function PopularCourses() {
   const { data, isPending: isLoadingCourses, error } = useGetCourses();
@@ -13,30 +15,50 @@ export default function PopularCourses() {
 
   if (error) {
     return (
-      <div className="mt-16  bg-indigo-50">
-        <h2>can't fetch popular courses</h2>
+      <div className="mt-16 bg-gradient-to-br from-emerald-50 to-green-50 py-12">
+        <h2 className="text-center text-red-600">Can't fetch popular courses</h2>
       </div>
     );
   }
 
   return (
-    <div className="mt-16  bg-indigo-50">
-      <div className="w-[95%] mx-auto px-4 py-6">
-        <div className="space-y-2">
-          <h2 className="text-2xl md:text-3xl font-bold text-indigo-600 tracking-tight mb-6">
-            POPULAR COURSES FOR YOU
-          </h2>
-          <p className="text-sm">
-            Get this best courses with best price from world class tutors
-          </p>
-        </div>
+    <section className="relative w-full py-16 md:py-20 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-black" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full mx-auto gap-4 px-6 mt-10">
-          {data.map((d) => (
-            <CourseCard {...d} key={d._id} />
+      <div className="relative z-10 w-[95%] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Award className="w-8 h-8 text-lime-400" />
+            <h2 className="text-4xl md:text-5xl font-bold">
+              <span className="text-white">Popular</span>{" "}
+              <span className="text-lime-400">Courses</span>
+            </h2>
+          </div>
+          <p className="text-white/70 text-lg">
+            Discover the best courses from world-class instructors
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {data.map((course, index) => (
+            <motion.div
+              key={course._id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <CourseCard {...course} />
+            </motion.div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

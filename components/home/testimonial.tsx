@@ -1,166 +1,251 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import * as React from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-const testimonials = [
+// Define the type for a single review
+type Review = {
+  id: string | number;
+  name: string;
+  affiliation: string;
+  quote: string;
+  imageSrc: string;
+  thumbnailSrc: string;
+};
+
+const reviews = [
   {
-    name: "Emily Carter",
-    occupation: "Computer Science Student at AAU",
-    text: "This platform has made learning so much easier! The interactive lessons and recorded lectures help me revise anytime. My professor even recommended it!",
-    image: "https://randomuser.me/api/portraits/women/5.jpg",
-    rating: 5,
+    id: 1,
+    name: "Ashley Right",
+    affiliation: "Pinterest",
+    quote:
+      "Professionals in their craft! All products were super amazing with strong attention to details, comps and overall vibe.",
+    // Image from the provided screenshot
+    imageSrc:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&q=80",
+    thumbnailSrc:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=120&fit=crop&q=80",
   },
   {
-    name: "Daniel Adams",
-    occupation: "Mechanical Engineering Student at ASTU",
-    text: "I used to struggle with some concepts, but the quizzes and discussion forums have really helped me understand better. My instructor loved how engaged we became!",
-    image: "https://randomuser.me/api/portraits/men/6.jpg",
-    rating: 4,
+    id: 2,
+    name: "Jacob Jose",
+    affiliation: "New York Times",
+    quote:
+      "Unlimited, instant access to hundreds of premium quality resources created by designers for designers.",
+    // Image from the provided screenshot
+    imageSrc:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&q=80",
+    thumbnailSrc:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=120&fit=crop&q=80",
   },
   {
-    name: "Sophia Lee",
-    occupation: "Business Administration Student",
-    text: "The structured courses and easy access to materials are amazing. Our professor was so happy to see students actively participating in discussions!",
-    image: "https://randomuser.me/api/portraits/women/7.jpg",
-    rating: 5,
+    id: 3,
+    name: "Elara Sands",
+    affiliation: "Behance",
+    quote:
+      "The attention to detail is immaculate. Every component feels polished and ready for production.",
+    // Thumbnail from the provided screenshot
+    imageSrc:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&q=80",
+    thumbnailSrc:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=120&fit=crop&q=80",
+  },
+  {
+    id: 4,
+    name: "Marcus Cole",
+    affiliation: "Dribbble",
+    quote:
+      "A true time-saver. I can focus on my core logic instead of pixel-pushing. Highly recommended.",
+    // Thumbnail from the provided screenshot
+    imageSrc:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=600&fit=crop&q=80",
+    thumbnailSrc:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=120&fit=crop&q=80",
+  },
+  {
+    id: 5,
+    name: "Serena V.",
+    affiliation: "Figma",
+    quote:
+      "This is the design system I've been waiting for. It's flexible, accessible, and beautiful.",
+    imageSrc:
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop&q=80",
+    thumbnailSrc:
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=120&fit=crop&q=80",
   },
 ];
 
 export default function Testimonials() {
-  const [index, setIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  // 'direction' helps framer-motion understand slide direction (next vs. prev)
+  const [direction, setDirection] = useState<"left" | "right">("right");
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handlePrev = () => {
-    setIndex(
-      (prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length
-    );
-  };
+  const activeReview = reviews[currentIndex];
 
   const handleNext = () => {
-    setIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    setDirection("right");
+    setCurrentIndex((prev) => (prev + 1) % reviews.length);
+  };
+
+  const handlePrev = () => {
+    setDirection("left");
+    setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    // Determine direction for animation
+    setDirection(index > currentIndex ? "right" : "left");
+    setCurrentIndex(index);
+  };
+
+  // Get the next 3 reviews for the thumbnails, excluding the current one
+  const thumbnailReviews = reviews
+    .filter((_, i) => i !== currentIndex)
+    .slice(0, 3);
+
+  // Animation variants for the main image
+  const imageVariants = {
+    enter: (direction: "left" | "right") => ({
+      y: direction === "right" ? "100%" : "-100%",
+      opacity: 0,
+    }),
+    center: { y: 0, opacity: 1 },
+    exit: (direction: "left" | "right") => ({
+      y: direction === "right" ? "-100%" : "100%",
+      opacity: 0,
+    }),
+  };
+
+  // Animation variants for the text content
+  const textVariants = {
+    enter: (direction: "left" | "right") => ({
+      x: direction === "right" ? 50 : -50,
+      opacity: 0,
+    }),
+    center: { x: 0, opacity: 1 },
+    exit: (direction: "left" | "right") => ({
+      x: direction === "right" ? -50 : 50,
+      opacity: 0,
+    }),
   };
 
   return (
-    <div className="py-12 px-4 md:px-8">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-indigo-600 mb-2">
-          Testimonials
-        </h2>
-        <p className="text-gray-600 max-w-md mx-auto">
-          See what our customers have to say about our products and services
-        </p>
-      </div>
+    <div
+      className={cn(
+        "relative w-full min-h-[650px] md:min-h-[600px] overflow-hidden bg-background text-foreground p-8 md:p-12"
+        // className
+      )}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
+        {/* === Left Column: Meta and Thumbnails === */}
+        <div className="md:col-span-3 flex flex-col justify-between order-2 md:order-1">
+          <div className="flex flex-row md:flex-col justify-between md:justify-start space-x-4 md:space-x-0 md:space-y-4">
+            {/* Pagination */}
+            <span className="text-sm text-muted-foreground font-mono">
+              {String(currentIndex + 1).padStart(2, "0")} /{" "}
+              {String(reviews.length).padStart(2, "0")}
+            </span>
+            {/* Vertical "Reviews" Text */}
+            <h2 className="text-sm font-medium tracking-widest uppercase [writing-mode:vertical-rl] md:rotate-180 hidden md:block">
+              Reviews
+            </h2>
+          </div>
 
-      <div className="relative max-w-3xl mx-auto">
-        {/* Card */}
-        <Card className="bg-white shadow-xl border-0 rounded-2xl overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-600"></div>
+          {/* Thumbnail Navigation */}
+          <div className="flex space-x-2 mt-8 md:mt-0">
+            {thumbnailReviews.map((review) => {
+              // Find the original index to navigate to
+              const originalIndex = reviews.findIndex(
+                (r) => r.id === review.id
+              );
+              return (
+                <button
+                  key={review.id}
+                  onClick={() => handleThumbnailClick(originalIndex)}
+                  className="overflow-hidden rounded-md w-16 h-20 md:w-20 md:h-24 opacity-70 hover:opacity-100 transition-opacity duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+                  aria-label={`View review from ${review.name}`}
+                >
+                  <img
+                    src={review.thumbnailSrc}
+                    alt={review.name}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-          <div className="p-8 md:p-10">
-            <AnimatePresence mode="wait">
+        {/* === Center Column: Main Image === */}
+        <div className="md:col-span-4 relative h-80 min-h-[400px] md:min-h-[500px] order-1 md:order-2">
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.img
+              key={currentIndex}
+              src={activeReview.imageSrc}
+              alt={activeReview.name}
+              custom={direction}
+              variants={imageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }} // Cubic bezier for smooth ease
+              className="absolute inset-0 w-full h-full object-cover rounded-lg"
+            />
+          </AnimatePresence>
+        </div>
+
+        {/* === Right Column: Text and Navigation === */}
+        <div className="md:col-span-5 flex flex-col justify-between md:pl-8 order-3 md:order-3">
+          {/* Text Content */}
+          <div className="relative overflow-hidden pt-4 md:pt-24 min-h-[200px]">
+            <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4 }}
-                className="flex flex-col md:flex-row gap-8 items-center"
+                key={currentIndex}
+                custom={direction}
+                variants={textVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
               >
-                {/* Left side - Avatar */}
-                <div className="flex-shrink-0">
-                  <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-indigo-600 blur-md opacity-20 scale-110"></div>
-                    <Avatar className="w-24 h-24 border-4 border-indigo-100">
-                      <AvatarImage
-                        src={testimonials[index].image}
-                        alt={testimonials[index].name}
-                      />
-                      <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xl">
-                        {testimonials[index].name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                </div>
-
-                {/* Right side - Content */}
-                <div className="flex-1 text-center md:text-left">
-                  {/* Rating */}
-                  <div className="flex justify-center md:justify-start mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-5 h-5 ${
-                          i < testimonials[index].rating
-                            ? "fill-indigo-500 text-indigo-500"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Quote */}
-                  <blockquote className="text-lg md:text-xl text-gray-700 italic mb-4">
-                    "{testimonials[index].text}"
-                  </blockquote>
-
-                  {/* Author */}
-                  <div>
-                    <h4 className="font-bold text-indigo-900">
-                      {testimonials[index].name}
-                    </h4>
-                    <p className="text-sm text-indigo-600">
-                      {testimonials[index].occupation}
-                    </p>
-                  </div>
-                </div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  {activeReview.affiliation}
+                </p>
+                <h3 className="text-xl font-semibold mt-1">
+                  {activeReview.name}
+                </h3>
+                <blockquote className="mt-6 text-2xl md:text-3xl font-medium leading-snug">
+                  "{activeReview.quote}"
+                </blockquote>
               </motion.div>
             </AnimatePresence>
           </div>
-        </Card>
 
-        {/* Navigation buttons */}
-        <button
-          onClick={handlePrev}
-          className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors"
-          aria-label="Previous testimonial"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-
-        <button
-          onClick={handleNext}
-          className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors"
-          aria-label="Next testimonial"
-        >
-          <ChevronRight className="w-6 h-6" />
-        </button>
-
-        {/* Indicators */}
-        <div className="flex justify-center mt-6 gap-2">
-          {testimonials.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                i === index ? "bg-indigo-600 scale-125" : "bg-indigo-200"
-              }`}
-              aria-label={`Go to testimonial ${i + 1}`}
-            />
-          ))}
+          {/* Navigation Buttons */}
+          <div className="flex items-center space-x-2 mt-8 md:mt-0">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full w-12 h-12 border-muted-foreground/50"
+              onClick={handlePrev}
+              aria-label="Previous review"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="default"
+              size="icon"
+              className="rounded-full w-12 h-12 bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={handleNext}
+              aria-label="Next review"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

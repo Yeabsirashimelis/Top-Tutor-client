@@ -144,7 +144,7 @@ export default function CoursePage() {
 
     if (paymentStatus?.status === "pending") {
       return (
-        <div className="p-6 max-w-4xl mx-auto space-y-6">
+        <div className="p-6 max-w-4xl mx-auto space-y-6 bg-white min-h-screen">
           <CourseOverview course={course} access={access} />
           <div className="border rounded-md p-4 bg-yellow-50">
             <h3 className="text-lg font-medium text-yellow-800">
@@ -161,7 +161,7 @@ export default function CoursePage() {
 
     // No pending payment yet → show payment form
     return (
-      <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <div className="p-6 max-w-4xl mx-auto space-y-6 bg-white min-h-screen">
         <CourseOverview course={course} access={access} />
         <PaymentForm courseId={courseId! as string} />
       </div>
@@ -174,7 +174,7 @@ export default function CoursePage() {
     : null;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-white">
       <CourseHeader
         courseTitle={course.title}
         currentSection={

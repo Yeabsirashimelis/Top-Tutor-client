@@ -1,258 +1,211 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import { signOut, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, User, LogOut, BookOpen, Heart, Home } from "lucide-react";
 
-export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const scrollPosition = useRef(0);
-  const { data: session, status } = useSession();
+export default function NavBar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const { data: session } = useSession();
 
-  // Handle body scrolling without causing layout shift
   useEffect(() => {
-    if (isMenuOpen) {
-      // Store current scroll position
-      scrollPosition.current = window.pageYOffset;
-
-      // Add padding to the body equal to the scrollbar width
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-
-      // Fix the body in place
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollPosition.current}px`;
-      document.body.style.width = "100%";
-    } else {
-      // Restore body to normal
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.paddingRight = "";
-      document.body.style.width = "";
-
-      // Restore scroll position
-      if (scrollPosition.current > 0) {
-        window.scrollTo(0, scrollPosition.current);
-      }
-    }
-
-    return () => {
-      // Clean up styles on unmount
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.paddingRight = "";
-      document.body.style.width = "";
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
     };
-  }, [isMenuOpen]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const navLinks = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/courses", label: "Courses", icon: BookOpen },
+    { href: "/wishlist", label: "Wishlist", icon: Heart },
+  ];
 
   return (
-    <>
-      {/* Main Navbar */}
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-200">
-        <div className="w-[95%] mx-auto">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo */}{" "}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600">
-                <img
-                  src="/images/logo.jpg"
-                  className="rounded-lg h-10 w-10 object-cover"
-                  alt="TOP-TUTOR Logo"
-                />
+    <motion.nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-black/95 backdrop-blur-lg border-b border-lime-400/20 shadow-lg shadow-lime-400/10"
+          : "bg-transparent"
+      }`}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-lime-400/20 blur-xl rounded-full group-hover:bg-lime-400/30 transition-all" />
+              <div className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-lime-400 to-green-400 rounded-lg">
+                <span className="text-black font-black text-xl">♠</span>
               </div>
-              <span className="text-indigo-600 font-extrabold text-2xl">
-                TOP-TUTOR
-              </span>
-            </Link>
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link href="/">Home</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link href="/courses">Courses</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-
-                  {/* <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link href="/contact-us">Contact Us</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem> */}
-
-                  {/* <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link href="/about">About</Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem> */}
-                </NavigationMenuList>
-              </NavigationMenu>
             </div>
-            {/* sign out */}
-            {!session ? null : (
-              <div className=" items-center gap-4 hidden md:flex">
-                <button
-                  className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  onClick={() => signOut()}
-                >
-                  Sign Out
-                </button>
-              </div>
-            )}
-            {/* Mobile Menu Button */}
-            <button
-              className="flex md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              <Menu className="h-6 w-6 text-indigo-600" />
-            </button>
-          </div>
-        </div>
-      </header>
+            <span className="text-xl font-bold bg-gradient-to-r from-lime-400 to-green-400 bg-clip-text text-transparent">
+              TopTutor
+            </span>
+          </Link>
 
-      {/* Mobile Menu - Using Portal approach */}
-      {isMenuOpen && (
-        <div className="md:hidden">
-          {/* Full screen overlay */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50"
-            onClick={() => setIsMenuOpen(false)}
-            aria-hidden="true"
-            style={{ position: "fixed" }}
-          />
-
-          {/* Menu content */}
-          <div
-            className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl z-50 flex flex-col"
-            style={{ position: "fixed" }}
-          >
-            {/* Menu header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <span className="text-lg font-bold text-indigo-600">Menu</span>
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="p-2 rounded-md text-gray-500 hover:text-indigo-600 hover:bg-gray-100"
-                aria-label="Close menu"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            {/* Menu items */}
-            <div className="flex-1 overflow-y-auto">
-              <nav className="flex flex-col p-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-1">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = pathname === link.href;
+              return (
                 <Link
-                  href="/"
-                  className="flex items-center py-3 px-4 text-base font-medium text-gray-900 hover:bg-indigo-50 hover:text-indigo-600 rounded-md"
-                  onClick={() => setIsMenuOpen(false)}
+                  key={link.href}
+                  href={link.href}
+                  className={`relative px-4 py-2 rounded-lg font-medium transition-all ${
+                    isActive
+                      ? "text-lime-400"
+                      : "text-gray-300 hover:text-lime-400"
+                  }`}
                 >
-                  Home
-                </Link>
-
-                {/* Courses Section */}
-                <Link href="courses">
-                  {" "}
-                  <div className="mt-2 mb-2">
-                    <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Courses
-                    </h3>
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-4 h-4" />
+                    {link.label}
                   </div>
+                  {isActive && (
+                    <motion.div
+                      layoutId="navbar-indicator"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-lime-400 to-green-400"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                 </Link>
+              );
+            })}
+          </div>
 
-                {/* Contact Us Section */}
-                {/* <div className="mt-2 mb-2">
-                  <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Contact Us
-                  </h3>
-                </div> */}
-
-                {/* <Link
-                  href="/about"
-                  className="flex items-center py-3 px-4 text-base font-medium text-gray-900 hover:bg-indigo-50 hover:text-indigo-600 rounded-md"
-                  onClick={() => setIsMenuOpen(false)}
+          {/* Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-3">
+            {session ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900/50 hover:bg-zinc-900 border border-lime-400/30 hover:border-lime-400/50 text-gray-300 hover:text-lime-400 transition-all"
                 >
-                  About
-                </Link> */}
-              </nav>
-            </div>
-
-            {/* signout */}
-            {!session ? null : (
-              <div className="flex justify-center mb-5 items-center gap-4 ">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm font-medium">Profile</span>
+                </Link>
                 <button
-                  className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   onClick={() => signOut()}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-lime-500 hover:bg-lime-400 text-black transition-all font-medium"
                 >
+                  <LogOut className="w-4 h-4" />
                   Sign Out
                 </button>
-              </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/signin"
+                  className="px-4 py-2 rounded-lg text-gray-300 hover:text-lime-400 font-medium transition-all"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-400 hover:to-green-400 text-black font-medium transition-all shadow-lg shadow-lime-400/20"
+                >
+                  Get Started
+                </Link>
+              </>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg bg-zinc-900/50 border border-lime-400/30 text-lime-400"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
-      )}
-    </>
+      </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-black/95 backdrop-blur-lg border-t border-lime-400/20"
+          >
+            <div className="px-4 py-4 space-y-2">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
+                      isActive
+                        ? "bg-lime-400/10 text-lime-400 border border-lime-400/30"
+                        : "text-gray-300 hover:bg-zinc-900/50"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    {link.label}
+                  </Link>
+                );
+              })}
+              
+              <div className="pt-4 border-t border-zinc-800 space-y-2">
+                {session ? (
+                  <>
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg bg-zinc-900/50 text-gray-300"
+                    >
+                      <User className="w-5 h-5" />
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-lime-500 text-black"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/signin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center px-4 py-3 rounded-lg border border-lime-400/30 text-gray-300"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center px-4 py-3 rounded-lg bg-gradient-to-r from-lime-500 to-green-500 text-black"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 }
-
-const ListItem = ({ className, title, children, href, ...props }: any) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <Link
-          href={href}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
-  );
-};
-
-const mentors = [
-  {
-    title: "Find a Mentor",
-    href: "/mentors/find",
-    description:
-      "Browse our network of experienced professionals ready to guide you",
-  },
-  {
-    title: "Become a Mentor",
-    href: "/mentors/become",
-    description: "Share your knowledge and help others grow in their careers",
-  },
-  {
-    title: "Mentorship Programs",
-    href: "/mentors/programs",
-    description:
-      "Structured programs designed to accelerate your learning journey",
-  },
-  {
-    title: "Success Stories",
-    href: "/mentors/success-stories",
-    description: "Read about how mentorship has transformed careers",
-  },
-];

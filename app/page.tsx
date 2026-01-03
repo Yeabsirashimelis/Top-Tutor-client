@@ -1,4 +1,4 @@
-// #007BFF or #3498DB
+// Poker-themed Learning Platform
 
 import HomeTop from "@/components/home/home-top";
 import PopularCourses from "@/components/home/popular-courses";
@@ -11,7 +11,8 @@ import RecentlyViewed from "@/components/home/recently-viewed";
 
 export default function HomePage() {
   return (
-    <div className="">
+    <div className="relative overflow-hidden bg-black">
+
       <HomeTop />
       <StatsHome />
       <RecentlyViewed />
@@ -20,6 +21,7 @@ export default function HomePage() {
       <PopularCourses />
       <SampleVideos />
       <Testimonials />
+
     </div>
   );
 }
