@@ -103,10 +103,8 @@ export default function CoursePage() {
   }, [progress, allLectures, currentLecture]);
 
   const overallProgress = useMemo(() => {
-    // If course is completed, always show 100%
-    if (courseCompleted) return 100;
-    
     if (!allLectures.length) return 0;
+    
     const completedCount = allLectures.filter((lecture) => {
       const lp = progress?.lecturesProgress?.find(
         (p: any) => p.lecture === lecture._id
@@ -114,8 +112,11 @@ export default function CoursePage() {
       return lp?.isCompleted === true;
     }).length;
     
-    return Math.round((completedCount / allLectures.length) * 100);
-  }, [courseCompleted, progress, allLectures]);
+    const calculatedProgress = Math.round((completedCount / allLectures.length) * 100);
+    
+    // Once 100% is achieved, always show 100% (even if user goes back to review)
+    return calculatedProgress === 100 ? 100 : calculatedProgress;
+  }, [progress, allLectures]);
 
   useEffect(() => {
     if (ratingData) {

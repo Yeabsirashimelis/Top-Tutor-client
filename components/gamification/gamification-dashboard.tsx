@@ -104,7 +104,7 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-indigo-600">
-              {profile.totalLecturesCompleted}
+              {profile.totalLecturesCompleted || 0}
             </div>
           </CardContent>
         </Card>
@@ -118,7 +118,7 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-amber-600">
-              {profile.totalQuizzesPassed}
+              {profile.totalQuizzesPassed || 0}
             </div>
           </CardContent>
         </Card>
@@ -132,7 +132,7 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">
-              {profile.totalCoursesCompleted}
+              {profile.totalCoursesCompleted || 0}
             </div>
           </CardContent>
         </Card>

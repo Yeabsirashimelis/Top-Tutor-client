@@ -5,7 +5,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogOut, BookOpen, Heart, Home, Trophy, LayoutDashboard } from "lucide-react";
+import {
+  Menu,
+  X,
+  User,
+  LogOut,
+  BookOpen,
+  Heart,
+  Home,
+  Trophy,
+  LayoutDashboard,
+} from "lucide-react";
 
 export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -28,7 +38,7 @@ export default function NavBar() {
   ];
 
   const authenticatedLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard", label: "Your Dashboard", icon: LayoutDashboard },
     { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   ];
 
@@ -78,52 +88,54 @@ export default function NavBar() {
                     <motion.div
                       layoutId="navbar-indicator"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-lime-400 to-green-400"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6,
+                      }}
                     />
                   )}
                 </Link>
               );
             })}
-            {session && authenticatedLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`relative px-4 py-2 rounded-lg font-medium transition-all ${
-                    isActive
-                      ? "text-lime-400"
-                      : "text-gray-300 hover:text-lime-400"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-4 h-4" />
-                    {link.label}
-                  </div>
-                  {isActive && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-lime-400 to-green-400"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
+            {session &&
+              authenticatedLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`relative px-4 py-2 rounded-lg font-medium transition-all ${
+                      isActive
+                        ? "text-lime-400"
+                        : "text-gray-300 hover:text-lime-400"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-4 h-4" />
+                      {link.label}
+                    </div>
+                    {isActive && (
+                      <motion.div
+                        layoutId="navbar-indicator"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-lime-400 to-green-400"
+                        transition={{
+                          type: "spring",
+                          bounce: 0.2,
+                          duration: 0.6,
+                        }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
           </div>
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-3">
             {session ? (
               <>
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900/50 hover:bg-zinc-900 border border-lime-400/30 hover:border-lime-400/50 text-gray-300 hover:text-lime-400 transition-all"
-                >
-                  <User className="w-4 h-4" />
-                  <span className="text-sm font-medium">Profile</span>
-                </Link>
                 <button
                   onClick={() => signOut()}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-lime-500 hover:bg-lime-400 text-black transition-all font-medium"
@@ -155,7 +167,11 @@ export default function NavBar() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 rounded-lg bg-zinc-900/50 border border-lime-400/30 text-lime-400"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
       </div>
@@ -189,38 +205,31 @@ export default function NavBar() {
                   </Link>
                 );
               })}
-              
-              {session && authenticatedLinks.map((link) => {
-                const Icon = link.icon;
-                const isActive = pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
-                      isActive
-                        ? "bg-lime-400/10 text-lime-400 border border-lime-400/30"
-                        : "text-gray-300 hover:bg-zinc-900/50"
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    {link.label}
-                  </Link>
-                );
-              })}
-              
+
+              {session &&
+                authenticatedLinks.map((link) => {
+                  const Icon = link.icon;
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
+                        isActive
+                          ? "bg-lime-400/10 text-lime-400 border border-lime-400/30"
+                          : "text-gray-300 hover:bg-zinc-900/50"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      {link.label}
+                    </Link>
+                  );
+                })}
+
               <div className="pt-4 border-t border-zinc-800 space-y-2">
                 {session ? (
                   <>
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg bg-zinc-900/50 text-gray-300"
-                    >
-                      <User className="w-5 h-5" />
-                      Profile
-                    </Link>
                     <button
                       onClick={() => {
                         signOut();
