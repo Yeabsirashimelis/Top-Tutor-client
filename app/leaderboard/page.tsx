@@ -19,7 +19,9 @@ import {
 export default function LeaderboardPage() {
   const { data: session } = useSession();
   const [timeframe, setTimeframe] = useState<string>("all-time");
-  const { data, isLoading } = useGetLeaderboard(50, timeframe);
+  const { data, isLoading, error } = useGetLeaderboard(50, timeframe);
+
+  console.log("🏆 [LEADERBOARD PAGE]", { isLoading, hasData: !!data, dataLength: data?.leaderboard?.length, error });
 
   const getRankIcon = (rank: number) => {
     switch (rank) {

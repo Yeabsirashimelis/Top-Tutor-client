@@ -4,12 +4,14 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGetGamificationProfile } from "@/hooks/gamification-hooks";
+import { useGetEnrolledCourses } from "@/hooks/enrolled-courses-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
 import BadgesShowcase from "@/components/gamification/badges-showcase";
 import StreakTracker from "@/components/gamification/streak-tracker";
 import GamificationDashboard from "@/components/gamification/gamification-dashboard";
+import DailyChallenges from "@/components/gamification/daily-challenges";
 import {
   Trophy,
   Award,
@@ -39,6 +41,19 @@ export default function DashboardPage() {
 
   const userId = session?.user?.id;
   const { data: gamificationData, isLoading } = useGetGamificationProfile(userId);
+  const { data: enrolledCoursesData } = useGetEnrolledCourses(userId);
+  
+  // Extract course IDs from enrolled courses
+  const courseIds = enrolledCoursesData?.enrolledCourses?.map((course) => course._id) || [];
+  
+  console.log("📊 [DASHBOARD] Dashboard data:", {
+    userId,
+    hasGamificationData: !!gamificationData,
+    hasEnrolledCoursesData: !!enrolledCoursesData,
+    enrolledCoursesCount: enrolledCoursesData?.enrolledCourses?.length || 0,
+    courseIds,
+    courseIdsCount: courseIds.length
+  });
 
   if (status === "loading" || isLoading) {
     return (
@@ -189,6 +204,9 @@ export default function DashboardPage() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Daily Challenges */}
+            <DailyChallenges userId={userId!} courseIds={courseIds} />
+            
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Gamification Stats */}
               <div className="lg:col-span-2 space-y-6">

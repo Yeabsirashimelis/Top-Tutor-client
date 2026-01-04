@@ -33,10 +33,19 @@ export interface PointTransaction {
 
 // Get user's gamification profile
 export const getGamificationProfile = async (userId: string) => {
+  console.log("🔍 [GAMIFICATION] Fetching profile for userId:", userId);
   const res = await betterFetch<{
     profile: UserGamificationProfile;
     recentTransactions: PointTransaction[];
   }>(`${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification?userId=${userId}`);
+  console.log("📊 [GAMIFICATION] Profile data received:", {
+    totalPoints: res.data?.profile?.totalPoints,
+    level: res.data?.profile?.level,
+    totalLecturesCompleted: res.data?.profile?.totalLecturesCompleted,
+    totalQuizzesPassed: res.data?.profile?.totalQuizzesPassed,
+    totalCoursesCompleted: res.data?.profile?.totalCoursesCompleted,
+    transactionsCount: res.data?.recentTransactions?.length
+  });
   return res.data;
 };
 
@@ -66,6 +75,15 @@ export const useAwardPoints = () => {
       description?: string;
       metadata?: any;
     }) => {
+      console.log("🎮 [GAMIFICATION] Awarding points:", {
+        userId,
+        points,
+        type,
+        description,
+        metadata,
+        endpoint: `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification`
+      });
+      
       const res = await betterFetch(
         `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification`,
         {
@@ -74,10 +92,19 @@ export const useAwardPoints = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
+      
+      console.log("✅ [GAMIFICATION] Points awarded successfully:", res.data);
       return res.data;
     },
     onSuccess: (_, variables) => {
+      console.log("🔄 [GAMIFICATION] Invalidating queries for userId:", variables.userId);
       queryClient.invalidateQueries({ queryKey: ["gamification", variables.userId] });
+    },
+    onError: (error, variables) => {
+      console.error("❌ [GAMIFICATION] Failed to award points:", {
+        error,
+        variables
+      });
     },
   });
 };

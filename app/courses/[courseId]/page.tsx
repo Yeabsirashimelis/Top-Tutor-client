@@ -147,6 +147,12 @@ export default function CoursePage() {
         
         // Award points for course completion
         if (userId) {
+          console.log("🎓 [COURSE] Course completed! Progress:", {
+            overallProgress,
+            totalLectures: allLectures.length,
+            courseId,
+            courseName: course?.title
+          });
           try {
             await awardPoints({
               userId,
@@ -159,8 +165,9 @@ export default function CoursePage() {
                 totalLectures: allLectures.length,
               },
             });
+            console.log("✅ [COURSE] Points awarded for course completion");
           } catch (error) {
-            console.error("Failed to award points for course completion:", error);
+            console.error("❌ [COURSE] Failed to award points for course completion:", error);
           }
         }
       }, 500);

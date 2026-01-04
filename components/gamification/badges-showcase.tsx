@@ -1,8 +1,10 @@
 "use client";
 
 import { useGetBadges } from "@/hooks/gamification-hooks";
+import { useGetGamificationProfile } from "@/hooks/gamification-hooks";
 import { Award, Lock, Star, TrendingUp, Zap, Target, Trophy, Flame, Brain, Heart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Progress } from "../ui/progress";
 
 interface BadgesShowcaseProps {
   userId: string;
@@ -38,6 +40,7 @@ const getRarityColor = (rarity: string) => {
 
 export default function BadgesShowcase({ userId }: BadgesShowcaseProps) {
   const { data, isLoading } = useGetBadges(userId);
+  const { data: gamificationData } = useGetGamificationProfile(userId);
 
   if (isLoading) {
     return (
@@ -50,6 +53,43 @@ export default function BadgesShowcase({ userId }: BadgesShowcaseProps) {
   const badges = data?.badges || [];
   const userBadges = data?.userBadges || [];
   const earnedBadgeIds = new Set(userBadges.map((b: any) => b.badgeId));
+  const profile = gamificationData?.profile;
+
+  // Calculate progress towards badges
+  const getBadgeProgress = (badge: any) => {
+    if (!profile) return { current: 0, target: 0, percentage: 0 };
+    
+    try {
+      const criteria = typeof badge.criteria === 'string' ? JSON.parse(badge.criteria) : badge.criteria;
+      let current = 0;
+      let target = criteria.count || criteria.days || 0;
+      
+      switch (criteria.type) {
+        case 'lectures_completed':
+          current = profile.totalLecturesCompleted || 0;
+          break;
+        case 'quizzes_passed':
+          current = profile.totalQuizzesPassed || 0;
+          break;
+        case 'courses_completed':
+          current = profile.totalCoursesCompleted || 0;
+          break;
+        case 'level':
+          current = profile.level || 0;
+          break;
+        case 'streak':
+          current = profile.currentStreak || 0;
+          break;
+        default:
+          return { current: 0, target: 0, percentage: 0 };
+      }
+      
+      const percentage = Math.min((current / target) * 100, 100);
+      return { current, target, percentage };
+    } catch (error) {
+      return { current: 0, target: 0, percentage: 0 };
+    }
+  };
 
   // Calculate completion percentage safely
   const completionPercentage = badges.length > 0 
@@ -118,20 +158,21 @@ export default function BadgesShowcase({ userId }: BadgesShowcaseProps) {
                   const isEarned = earnedBadgeIds.has(badge.badgeId);
                   const earnedBadge = userBadges.find((b: any) => b.badgeId === badge.badgeId);
                   const IconComponent = getBadgeIcon(badge.icon || "award");
+                  const progress = !isEarned ? getBadgeProgress(badge) : null;
 
                   return (
                     <div
                       key={badge.badgeId}
                       className={`relative group ${
-                        isEarned ? "cursor-pointer" : "opacity-50"
+                        isEarned ? "cursor-pointer" : ""
                       }`}
                     >
                       <div
                         className={`
                           aspect-square rounded-xl p-4 flex flex-col items-center justify-center
                           bg-gradient-to-br ${getRarityColor(badge.rarity)}
-                          ${isEarned ? "shadow-lg hover:scale-105" : "grayscale"}
-                          transition-all duration-200
+                          ${isEarned ? "shadow-lg hover:scale-105" : "grayscale opacity-70"}
+                          transition-all duration-200 relative overflow-hidden
                         `}
                       >
                         {isEarned ? (
@@ -147,14 +188,45 @@ export default function BadgesShowcase({ userId }: BadgesShowcaseProps) {
                             +{badge.points} XP
                           </p>
                         )}
+                        
+                        {/* Progress bar for locked badges */}
+                        {!isEarned && progress && progress.target > 0 && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/30 p-2">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-white text-xs">
+                                {progress.current}/{progress.target}
+                              </span>
+                              <span className="text-white text-xs">
+                                {Math.round(progress.percentage)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-white/20 rounded-full h-1.5">
+                              <div
+                                className="bg-white rounded-full h-1.5 transition-all duration-300"
+                                style={{ width: `${progress.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Tooltip */}
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                         <p className="font-semibold mb-1">{badge.name}</p>
                         <p className="text-gray-300 text-xs mb-2">{badge.description}</p>
+                        
+                        {/* Show progress in tooltip */}
+                        {!isEarned && progress && progress.target > 0 && (
+                          <div className="mt-2 pt-2 border-t border-gray-700">
+                            <p className="text-gray-400 text-xs mb-1">
+                              Progress: {progress.current} / {progress.target}
+                            </p>
+                            <Progress value={progress.percentage} className="h-2" />
+                          </div>
+                        )}
+                        
                         {isEarned && earnedBadge && (
-                          <p className="text-gray-400 text-xs">
+                          <p className="text-gray-400 text-xs mt-2 pt-2 border-t border-gray-700">
                             Earned on {new Date(earnedBadge.earnedAt).toLocaleDateString()}
                           </p>
                         )}

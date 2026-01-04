@@ -7,6 +7,8 @@ import Providers from "@/providers/query-provider";
 import AuthProvider from "@/providers/AuthProvider";
 import ProtectedRoute from "@/providers/protectedRoute";
 import StreakTrackerWrapper from "@/components/general/streak-tracker-wrapper";
+import BadgeNotificationWrapper from "@/components/general/badge-notification-wrapper";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,8 +32,14 @@ export default function RootLayout({
         <AuthProvider>
           <ProtectedRoute>
             <Providers>
+              {/* Toast notifications */}
+              <Toaster />
+              
               {/* Daily streak tracking */}
               <StreakTrackerWrapper />
+              
+              {/* Badge notifications */}
+              <BadgeNotificationWrapper />
               
               {/* Navbar */}
               <Navbar />

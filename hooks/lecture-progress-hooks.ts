@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAwardPoints } from "./gamification-hooks";
+import { useBadgeNotification } from "./use-badge-notification";
+import { showXPToast, showLevelUpToast } from "@/lib/toast-helper";
 
 export function useLectureProgress(userId: string, courseId: string) {
   const queryClient = useQueryClient();
   const { mutateAsync: awardPoints } = useAwardPoints();
+  const { showBadges } = useBadgeNotification();
 
   return useMutation({
     mutationFn: async (data: {
@@ -40,8 +43,13 @@ export function useLectureProgress(userId: string, courseId: string) {
 
       // Award points when lecture is completed
       if (variables.isCompleted) {
+        console.log("📚 [LECTURE] Lecture completed, awarding points:", {
+          userId,
+          courseId,
+          lectureId: variables.lectureId
+        });
         try {
-          await awardPoints({
+          const result = await awardPoints({
             userId,
             points: 10,
             type: "lecture_completed",
@@ -51,8 +59,30 @@ export function useLectureProgress(userId: string, courseId: string) {
               lectureId: variables.lectureId,
             },
           });
+          console.log("✅ [LECTURE] Points awarded for lecture completion");
+          
+          // Show XP toast notification
+          showXPToast(10, "Lecture completed!", "xp");
+          
+          // Check for level up
+          if (result?.profile) {
+            const currentLevel = result.profile.level;
+            const previousLevel = localStorage.getItem(`user_level_${userId}`);
+            
+            if (previousLevel && parseInt(previousLevel) < currentLevel) {
+              showLevelUpToast(currentLevel);
+            }
+            
+            localStorage.setItem(`user_level_${userId}`, currentLevel.toString());
+          }
+          
+          // Show badge notifications if any badges were earned
+          if (result?.newBadges && result.newBadges.length > 0) {
+            console.log("🏆 [LECTURE] Badges earned:", result.newBadges);
+            showBadges(result.newBadges);
+          }
         } catch (error) {
-          console.error("Failed to award points for lecture completion:", error);
+          console.error("❌ [LECTURE] Failed to award points for lecture completion:", error);
         }
       }
     },
