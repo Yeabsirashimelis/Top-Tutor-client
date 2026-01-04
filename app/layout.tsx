@@ -6,6 +6,7 @@ import Navbar from "@/components/general/nav-bar";
 import Providers from "@/providers/query-provider";
 import AuthProvider from "@/providers/AuthProvider";
 import ProtectedRoute from "@/providers/protectedRoute";
+import StreakTrackerWrapper from "@/components/general/streak-tracker-wrapper";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,6 +30,9 @@ export default function RootLayout({
         <AuthProvider>
           <ProtectedRoute>
             <Providers>
+              {/* Daily streak tracking */}
+              <StreakTrackerWrapper />
+              
               {/* Navbar */}
               <Navbar />
 

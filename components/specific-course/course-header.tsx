@@ -17,6 +17,8 @@ interface CourseHeaderProps {
   userComment?: string;
   onRateClick?: () => void;
   course: Course;
+  showCompletionButton?: boolean;
+  onShowCompletion?: () => void;
 }
 
 export default function CourseHeader({
@@ -28,6 +30,8 @@ export default function CourseHeader({
   userComment,
   onRateClick,
   course,
+  showCompletionButton = false,
+  onShowCompletion,
 }: CourseHeaderProps) {
   console.log(course);
   const showRatingButton = overallProgress >= 20;
@@ -63,6 +67,17 @@ export default function CourseHeader({
             value={overallProgress}
             className="w-24 md:w-40 h-2 [&>[data-state='complete']]:bg-gray-800"
           />
+
+          {showCompletionButton && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onShowCompletion}
+              className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1 h-8 gap-1"
+            >
+              🎉 View Certificate
+            </Button>
+          )}
 
           {showRatingButton && (
             <Button

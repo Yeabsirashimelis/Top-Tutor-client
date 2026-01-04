@@ -29,8 +29,10 @@ export const useGetQuiz = (courseId:string, quizId: string, userId:string) =>
     enabled: !!quizId,
   });
 
-export const useSubmitQuizAttempt = () =>
-  useMutation({
+export const useSubmitQuizAttempt = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
     mutationFn: async ({
       courseId,
       quizId,
@@ -51,4 +53,55 @@ export const useSubmitQuizAttempt = () =>
           body: { userId, score, passed },
         }
       ),
+    onSuccess: async (data, variables) => {
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({
+        queryKey: ["quiz", variables.quizId, variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["course-progress", variables.userId, variables.courseId],
+      });
+
+      // Award points for passing quiz
+      if (variables.passed) {
+        try {
+          // Base points for passing
+          let points = 20;
+          let description = "Passed a quiz";
+          
+          // Bonus for perfect score
+          if (variables.score === 100) {
+            points = 50;
+            description = "Perfect score on quiz!";
+          }
+
+          await betterFetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                userId: variables.userId,
+                points,
+                type: variables.score === 100 ? "quiz_perfect" : "quiz_passed",
+                description,
+                metadata: {
+                  courseId: variables.courseId,
+                  quizId: variables.quizId,
+                  score: variables.score,
+                },
+              }),
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+          // Invalidate gamification data
+          queryClient.invalidateQueries({
+            queryKey: ["gamification", variables.userId],
+          });
+        } catch (error) {
+          console.error("Failed to award points for quiz:", error);
+        }
+      }
+    },
   });
+};

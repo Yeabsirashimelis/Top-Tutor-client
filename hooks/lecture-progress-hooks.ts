@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAwardPoints } from "./gamification-hooks";
 
 export function useLectureProgress(userId: string, courseId: string) {
   const queryClient = useQueryClient();
+  const { mutateAsync: awardPoints } = useAwardPoints();
 
   return useMutation({
     mutationFn: async (data: {
@@ -31,10 +33,28 @@ export function useLectureProgress(userId: string, courseId: string) {
 
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["course-progress", userId, courseId],
       });
+
+      // Award points when lecture is completed
+      if (variables.isCompleted) {
+        try {
+          await awardPoints({
+            userId,
+            points: 10,
+            type: "lecture_completed",
+            description: "Completed a lecture",
+            metadata: {
+              courseId,
+              lectureId: variables.lectureId,
+            },
+          });
+        } catch (error) {
+          console.error("Failed to award points for lecture completion:", error);
+        }
+      }
     },
   });
 }

@@ -19,6 +19,7 @@ import { useGetCourseRating } from "@/hooks/course-rating-hooks";
 import EnhancedQuizPlayer from "@/components/quiz/enhanced-quiz-player";
 import Spinner from "@/components/spinner";
 import { useGetPaymentStatus } from "@/hooks/payment-status-hooks";
+import { useAwardPoints } from "@/hooks/gamification-hooks";
 
 export default function CoursePage() {
   const { courseId } = useParams();
@@ -67,6 +68,8 @@ export default function CoursePage() {
   } | null>(null);
 
   const [courseCompleted, setCourseCompleted] = useState(false);
+  const [hasSeenCompletion, setHasSeenCompletion] = useState(false);
+  const { mutateAsync: awardPoints } = useAwardPoints();
 
   const allLectures = useMemo(
     () =>
@@ -133,15 +136,36 @@ export default function CoursePage() {
       overallProgress === 100 &&
       allLectures.length > 0 &&
       !courseCompleted &&
-      !activeQuiz
+      !activeQuiz &&
+      !hasSeenCompletion
     ) {
       // Small delay to ensure UI updates
-      const timer = setTimeout(() => {
+      const timer = setTimeout(async () => {
         setCourseCompleted(true);
+        setHasSeenCompletion(true);
+        
+        // Award points for course completion
+        if (userId) {
+          try {
+            await awardPoints({
+              userId,
+              points: 100,
+              type: "course_completed",
+              description: `Completed course: ${course?.title}`,
+              metadata: {
+                courseId,
+                courseName: course?.title,
+                totalLectures: allLectures.length,
+              },
+            });
+          } catch (error) {
+            console.error("Failed to award points for course completion:", error);
+          }
+        }
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [overallProgress, allLectures.length, courseCompleted, activeQuiz]);
+  }, [overallProgress, allLectures.length, courseCompleted, activeQuiz, hasSeenCompletion, userId, courseId, course?.title, awardPoints]);
 
   // Track course view for recently viewed
   useEffect(() => {
@@ -214,6 +238,8 @@ export default function CoursePage() {
         userComment={userComment}
         onRateClick={() => setShowRatingPopup(true)}
         course={course}
+        showCompletionButton={overallProgress === 100 && hasSeenCompletion}
+        onShowCompletion={() => setCourseCompleted(true)}
       />
 
       <RatingPrompt
@@ -256,7 +282,10 @@ export default function CoursePage() {
                 </div>
                 <div className="flex gap-4 justify-center mt-8">
                   <button
-                    onClick={() => setCourseCompleted(false)}
+                    onClick={() => {
+                      setCourseCompleted(false);
+                      // Don't reset hasSeenCompletion so it won't auto-show again
+                    }}
                     className="px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg transition-all"
                   >
                     Review Lectures
@@ -396,9 +425,10 @@ export default function CoursePage() {
                   sectionId={currentLecture?.sectionId || ""}
                   lectureId={currentLecture?.lectureId || ""}
                   allLectures={allLectures}
-                  onSelectLecture={(sectionId, lectureId) =>
-                    setCurrentLecture({ sectionId, lectureId })
-                  }
+                  onSelectLecture={(sectionId, lectureId) => {
+                    setCurrentLecture({ sectionId, lectureId });
+                    setCourseCompleted(false); // Hide completion screen when selecting from notes
+                  }}
                 />
               </TabsContent>
 
@@ -435,8 +465,14 @@ export default function CoursePage() {
             quizzes={course.quizzes}
             currentLecture={currentLecture}
             currentQuiz={currentQuiz}
-            setCurrentLecture={setCurrentLecture}
-            setCurrentQuiz={setCurrentQuiz}
+            setCurrentLecture={(lecture) => {
+              setCurrentLecture(lecture);
+              setCourseCompleted(false); // Hide completion screen when selecting a lecture
+            }}
+            setCurrentQuiz={(quiz) => {
+              setCurrentQuiz(quiz);
+              setCourseCompleted(false); // Hide completion screen when selecting a quiz
+            }}
             courseId={courseId! as string}
             userId={userId}
           />

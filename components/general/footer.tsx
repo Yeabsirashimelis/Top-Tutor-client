@@ -60,7 +60,7 @@ export default function Footer() {
                 </div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-lime-400 to-green-400 bg-clip-text text-transparent">
-                TopTutor
+                እንማር
               </span>
             </Link>
             
@@ -170,7 +170,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
             <p className="text-gray-400 text-sm">
-              © {currentYear} TopTutor. All rights reserved.
+              © {currentYear} እንማር. All rights reserved.
             </p>
 
             {/* Social Links */}

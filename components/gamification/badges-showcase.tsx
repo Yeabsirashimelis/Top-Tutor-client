@@ -51,12 +51,39 @@ export default function BadgesShowcase({ userId }: BadgesShowcaseProps) {
   const userBadges = data?.userBadges || [];
   const earnedBadgeIds = new Set(userBadges.map((b: any) => b.badgeId));
 
+  // Calculate completion percentage safely
+  const completionPercentage = badges.length > 0 
+    ? Math.round((userBadges.length / badges.length) * 100) 
+    : 0;
+
   // Group badges by category
   const categories = ["learning", "achievement", "streak", "social", "special"];
   const groupedBadges = categories.reduce((acc: any, category) => {
     acc[category] = badges.filter((b: any) => b.category === category);
     return acc;
   }, {});
+
+  // Show message if no badges exist in the system
+  if (badges.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Badges & Achievements</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-12">
+            <Award className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              No Badges Available Yet
+            </h3>
+            <p className="text-gray-500">
+              Badges will be available soon. Keep learning and checking back!
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -69,7 +96,7 @@ export default function BadgesShowcase({ userId }: BadgesShowcaseProps) {
         </div>
         <div className="bg-indigo-100 px-4 py-2 rounded-full">
           <span className="text-indigo-700 font-semibold">
-            {Math.round((userBadges.length / badges.length) * 100)}% Complete
+            {completionPercentage}% Complete
           </span>
         </div>
       </div>
