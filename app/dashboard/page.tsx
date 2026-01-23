@@ -2,12 +2,15 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useGetGamificationProfile } from "@/hooks/gamification-hooks";
 import { useGetEnrolledCourses } from "@/hooks/enrolled-courses-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import BadgesShowcase from "@/components/gamification/badges-showcase";
 import StreakTracker from "@/components/gamification/streak-tracker";
 import GamificationDashboard from "@/components/gamification/gamification-dashboard";
@@ -16,22 +19,53 @@ import {
   Trophy,
   Award,
   TrendingUp,
-  Calendar,
   BookOpen,
-  CheckCircle,
   Star,
   Flame,
   Zap,
-  Target,
   LayoutDashboard,
-  Book,
+  PlayCircle,
+  ChevronRight,
 } from "lucide-react";
-import Link from "next/link";
+
+// Skeleton components for loading states
+function ProfileHeaderSkeleton() {
+  return (
+    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg overflow-hidden mb-8">
+      <div className="p-8">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <div className="w-32 h-32 rounded-full bg-white/20 animate-pulse" />
+          <div className="flex-1 text-center md:text-left space-y-4">
+            <div className="h-8 w-48 bg-white/20 rounded animate-pulse mx-auto md:mx-0" />
+            <div className="h-4 w-32 bg-white/20 rounded animate-pulse mx-auto md:mx-0" />
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-10 w-28 bg-white/20 rounded-lg animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CourseCardSkeleton() {
+  return (
+    <div className="min-w-[280px] bg-white rounded-lg border border-gray-200 overflow-hidden animate-pulse">
+      <div className="h-40 bg-gray-200" />
+      <div className="p-4 space-y-3">
+        <div className="h-5 w-3/4 bg-gray-200 rounded" />
+        <div className="h-2 w-full bg-gray-200 rounded" />
+        <div className="h-4 w-1/4 bg-gray-200 rounded" />
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -41,24 +75,22 @@ export default function DashboardPage() {
 
   const userId = session?.user?.id;
   const { data: gamificationData, isLoading } = useGetGamificationProfile(userId);
-  const { data: enrolledCoursesData } = useGetEnrolledCourses(userId);
-  
+  const { data: enrolledCoursesData, isLoading: coursesLoading } = useGetEnrolledCourses(userId);
+
   // Extract course IDs from enrolled courses
   const courseIds = enrolledCoursesData?.enrolledCourses?.map((course) => course._id) || [];
-  
-  console.log("📊 [DASHBOARD] Dashboard data:", {
-    userId,
-    hasGamificationData: !!gamificationData,
-    hasEnrolledCoursesData: !!enrolledCoursesData,
-    enrolledCoursesCount: enrolledCoursesData?.enrolledCourses?.length || 0,
-    courseIds,
-    courseIdsCount: courseIds.length
-  });
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-white pt-20 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ProfileHeaderSkeleton />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -68,23 +100,24 @@ export default function DashboardPage() {
   }
 
   const profile = gamificationData?.profile;
+  const enrolledCourses = enrolledCoursesData?.enrolledCourses || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-12">
+    <div className="min-h-screen bg-white pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl overflow-hidden mb-8">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg overflow-hidden mb-8">
           <div className="p-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <div className="relative">
                 <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
-                  <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold">
                     {session.user.name?.charAt(0).toUpperCase() || "U"}
                   </div>
                 </Avatar>
                 {profile && profile.level && (
-                  <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-yellow-900 rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white">
+                  <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white">
                     {profile.level}
                   </div>
                 )}
@@ -131,27 +164,90 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Continue Learning Section */}
+        {enrolledCourses.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <PlayCircle className="w-5 h-5 text-indigo-600" />
+                Continue Learning
+              </h2>
+              <Link
+                href="/courses"
+                className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+              >
+                View All
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-thin scrollbar-thumb-gray-300">
+              {coursesLoading
+                ? [...Array(3)].map((_, i) => <CourseCardSkeleton key={i} />)
+                : enrolledCourses.slice(0, 5).map((course) => (
+                    <Link
+                      key={course._id}
+                      href={`/courses/${course._id}`}
+                      className="min-w-[280px] max-w-[280px] bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg hover:border-indigo-300 transition-all group"
+                    >
+                      <div className="relative h-40 bg-gradient-to-br from-indigo-500 to-purple-600">
+                        {(course.thumbnail || course.coverImage) ? (
+                          <Image
+                            src={course.thumbnail || course.coverImage || ""}
+                            alt={course.title}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <BookOpen className="w-16 h-16 text-white/30" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-3 left-3 right-3">
+                          <h3 className="text-white font-semibold line-clamp-2 text-sm">
+                            {course.title}
+                          </h3>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-gray-600">
+                            {course.completedLectures ?? 0}/{course.totalLectures ?? 0} lectures
+                          </span>
+                          <span className="text-sm font-semibold text-indigo-600">
+                            {course.progress ?? 0}%
+                          </span>
+                        </div>
+                        <Progress value={course.progress ?? 0} className="h-2" />
+                        <button className="mt-3 w-full py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium group-hover:bg-indigo-100 transition">
+                          Continue
+                        </button>
+                      </div>
+                    </Link>
+                  ))}
+            </div>
+          </div>
+        )}
+
         {/* Quick Access Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link href="/courses">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-gray-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-600">
-                  <Book className="w-4 h-4" />
-                  My Courses
+                  <BookOpen className="w-4 h-4" />
+                  Browse Courses
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-indigo-600">
-                  View All
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Continue learning</p>
+                <div className="text-3xl font-bold text-blue-600">Explore</div>
+                <p className="text-xs text-gray-500 mt-1">Discover new courses</p>
               </CardContent>
             </Card>
           </Link>
 
           <Link href="/wishlist">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-gray-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-600">
                   <Star className="w-4 h-4" />
@@ -159,16 +255,14 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-amber-600">
-                  View
-                </div>
+                <div className="text-3xl font-bold text-indigo-600">View</div>
                 <p className="text-xs text-gray-500 mt-1">Saved courses</p>
               </CardContent>
             </Card>
           </Link>
 
           <Link href="/leaderboard">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-gray-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-600">
                   <TrendingUp className="w-4 h-4" />
@@ -176,9 +270,7 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-purple-600">
-                  Compete
-                </div>
+                <div className="text-3xl font-bold text-purple-600">Compete</div>
                 <p className="text-xs text-gray-500 mt-1">See rankings</p>
               </CardContent>
             </Card>
@@ -186,8 +278,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:w-auto">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="w-4 h-4" />
               Overview
@@ -196,17 +288,13 @@ export default function DashboardPage() {
               <Award className="w-4 h-4" />
               Achievements
             </TabsTrigger>
-            <TabsTrigger value="activity" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Activity
-            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Daily Challenges */}
             <DailyChallenges userId={userId!} courseIds={courseIds} />
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Gamification Stats */}
               <div className="lg:col-span-2 space-y-6">
@@ -218,135 +306,11 @@ export default function DashboardPage() {
                 <StreakTracker userId={userId!} />
               </div>
             </div>
-
-            {/* Learning Statistics */}
-            {profile && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5" />
-                    Detailed Statistics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                    <div className="text-center p-4 bg-indigo-50 rounded-lg">
-                      <div className="text-3xl font-bold text-indigo-600 mb-1">
-                        {profile.totalLecturesCompleted || 0}
-                      </div>
-                      <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
-                        <BookOpen className="w-4 h-4" />
-                        Lectures Completed
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-amber-50 rounded-lg">
-                      <div className="text-3xl font-bold text-amber-600 mb-1">
-                        {profile.totalQuizzesPassed || 0}
-                      </div>
-                      <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
-                        <CheckCircle className="w-4 h-4" />
-                        Quizzes Passed
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-3xl font-bold text-green-600 mb-1">
-                        {profile.totalCoursesCompleted || 0}
-                      </div>
-                      <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
-                        <Trophy className="w-4 h-4" />
-                        Courses Completed
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-3xl font-bold text-purple-600 mb-1">
-                        {Math.floor((profile.totalStudyTimeMinutes || 0) / 60)}h {(profile.totalStudyTimeMinutes || 0) % 60}m
-                      </div>
-                      <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        Total Study Time
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-red-50 rounded-lg">
-                      <div className="text-3xl font-bold text-red-600 mb-1">
-                        {profile.longestStreak || 0}
-                      </div>
-                      <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
-                        <Flame className="w-4 h-4" />
-                        Longest Streak
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                      <div className="text-3xl font-bold text-yellow-600 mb-1">
-                        {profile.totalPoints.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
-                        <Star className="w-4 h-4" />
-                        Total XP
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
           {/* Achievements Tab */}
           <TabsContent value="achievements" className="space-y-6">
             {userId && <BadgesShowcase userId={userId} />}
-          </TabsContent>
-
-          {/* Activity Tab */}
-          <TabsContent value="activity" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {gamificationData?.recentTransactions && gamificationData.recentTransactions.length > 0 ? (
-                  <div className="space-y-3">
-                    {gamificationData.recentTransactions.map((transaction: any) => (
-                      <div
-                        key={transaction._id}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <Zap className="w-5 h-5 text-indigo-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">
-                              {transaction.description || transaction.type.replace(/_/g, " ")}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(transaction.createdAt).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-green-600">+{transaction.points}</p>
-                          <p className="text-xs text-gray-500">XP</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                    <p>No recent activity yet</p>
-                    <p className="text-sm mt-2">Start learning to earn XP and badges!</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>

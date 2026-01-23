@@ -1,21 +1,60 @@
 "use client";
 
 import { useGetGamificationProfile } from "@/hooks/gamification-hooks";
-import { Trophy, Zap, Target, Award, TrendingUp, Calendar, Star, Flame } from "lucide-react";
+import {
+  Trophy,
+  Zap,
+  Target,
+  Award,
+  TrendingUp,
+  Star,
+  Flame,
+  BookOpen,
+  CheckCircle,
+} from "lucide-react";
 import { Progress } from "../ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import type { PointTransaction } from "@/types/gamification";
 
 interface GamificationDashboardProps {
   userId: string;
 }
 
-export default function GamificationDashboard({ userId }: GamificationDashboardProps) {
+// Skeleton loader for cards
+function StatCardSkeleton() {
+  return (
+    <Card className="animate-pulse">
+      <CardHeader className="pb-3">
+        <div className="h-4 w-24 bg-gray-200 rounded" />
+      </CardHeader>
+      <CardContent>
+        <div className="h-10 w-16 bg-gray-200 rounded mb-2" />
+        <div className="h-2 bg-gray-200 rounded" />
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function GamificationDashboard({
+  userId,
+}: GamificationDashboardProps) {
   const { data, isLoading } = useGetGamificationProfile(userId);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="space-y-6">
+        {/* Hero Stats Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <StatCardSkeleton key={i} />
+          ))}
+        </div>
+        {/* Progress Stats Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <StatCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -25,13 +64,30 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
   }
 
   const { profile, recentTransactions } = data;
-  const levelProgress = (profile.currentLevelPoints / profile.pointsToNextLevel) * 100;
+  const levelProgress =
+    (profile.currentLevelPoints / profile.pointsToNextLevel) * 100;
+
+  // Format transaction type for display
+  const formatTransactionType = (transaction: PointTransaction) => {
+    if (transaction.description) return transaction.description;
+    return transaction.type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
+  // Get icon for transaction type
+  const getTransactionIcon = (type: string) => {
+    if (type.includes("lecture")) return BookOpen;
+    if (type.includes("quiz")) return CheckCircle;
+    if (type.includes("course")) return Trophy;
+    if (type.includes("streak")) return Flame;
+    if (type.includes("badge")) return Award;
+    return Zap;
+  };
 
   return (
     <div className="space-y-6">
       {/* Hero Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Level Card */}
+        {/* Level Card with Progress */}
         <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -43,7 +99,8 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
             <div className="text-4xl font-bold mb-2">{profile.level}</div>
             <Progress value={levelProgress} className="h-2 bg-white/20" />
             <p className="text-xs mt-2 text-indigo-100">
-              {profile.currentLevelPoints} / {profile.pointsToNextLevel} XP
+              {profile.currentLevelPoints.toLocaleString()} /{" "}
+              {profile.pointsToNextLevel.toLocaleString()} XP to next level
             </p>
           </CardContent>
         </Card>
@@ -57,7 +114,9 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold mb-2">{profile.totalPoints.toLocaleString()}</div>
+            <div className="text-4xl font-bold mb-2">
+              {profile.totalPoints.toLocaleString()}
+            </div>
             <p className="text-xs text-amber-100">Lifetime earnings</p>
           </CardContent>
         </Card>
@@ -87,7 +146,9 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold mb-2">{profile.badges?.length || 0}</div>
+            <div className="text-4xl font-bold mb-2">
+              {profile.badges?.length || 0}
+            </div>
             <p className="text-xs text-green-100">Achievements unlocked</p>
           </CardContent>
         </Card>
@@ -138,7 +199,7 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
         </Card>
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent Activity - Only show if there are transactions */}
       {recentTransactions && recentTransactions.length > 0 && (
         <Card>
           <CardHeader>
@@ -149,62 +210,47 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {recentTransactions.map((transaction: any) => (
-                <div
-                  key={transaction._id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-indigo-600" />
+              {recentTransactions.slice(0, 5).map((transaction) => {
+                const IconComponent = getTransactionIcon(transaction.type);
+                return (
+                  <div
+                    key={transaction._id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <IconComponent className="w-5 h-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">
+                          {formatTransactionType(transaction)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(transaction.createdAt).toLocaleDateString(
+                            undefined,
+                            {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-sm">
-                        {transaction.description || transaction.type.replace(/_/g, " ")}
+                    <div className="text-right">
+                      <p className="font-bold text-green-600">
+                        +{transaction.points}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(transaction.createdAt).toLocaleDateString()}
-                      </p>
+                      <p className="text-xs text-gray-500">XP</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">+{transaction.points}</p>
-                    <p className="text-xs text-gray-500">XP</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Level Progress Detail */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Level Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold">Level {profile.level}</span>
-              <span className="text-gray-600">
-                {Math.round(levelProgress)}% to Level {profile.level + 1}
-              </span>
-            </div>
-            <Progress value={levelProgress} className="h-3" />
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>{profile.currentLevelPoints} XP</span>
-              <span>{profile.pointsToNextLevel} XP</span>
-            </div>
-            <p className="text-sm text-gray-500">
-              Keep learning to reach the next level and unlock more rewards!
-            </p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { useGetLeaderboard } from "@/hooks/leaderboard-hooks";
+import { useGetLeaderboard, type TimeFrame } from "@/hooks/leaderboard-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import {
@@ -13,15 +13,12 @@ import {
   Flame,
   Zap,
   Crown,
-  Star,
 } from "lucide-react";
 
 export default function LeaderboardPage() {
   const { data: session } = useSession();
-  const [timeframe, setTimeframe] = useState<string>("all-time");
-  const { data, isLoading, error } = useGetLeaderboard(50, timeframe);
-
-  console.log("🏆 [LEADERBOARD PAGE]", { isLoading, hasData: !!data, dataLength: data?.leaderboard?.length, error });
+  const [timeframe, setTimeframe] = useState<TimeFrame>("all-time");
+  const { data, isLoading } = useGetLeaderboard(50, timeframe);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -49,6 +46,12 @@ export default function LeaderboardPage() {
     }
   };
 
+  const timeframes: { value: TimeFrame; label: string }[] = [
+    { value: "all-time", label: "All Time" },
+    { value: "monthly", label: "Monthly" },
+    { value: "weekly", label: "Weekly" },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,19 +69,17 @@ export default function LeaderboardPage() {
         {/* Timeframe Selector */}
         <div className="flex justify-center mb-8">
           <div className="inline-flex rounded-lg border border-gray-300 bg-white p-1">
-            {["all-time", "monthly", "weekly"].map((tf) => (
+            {timeframes.map((tf) => (
               <button
-                key={tf}
-                onClick={() => setTimeframe(tf)}
+                key={tf.value}
+                onClick={() => setTimeframe(tf.value)}
                 className={`px-6 py-2 rounded-md font-medium transition ${
-                  timeframe === tf
+                  timeframe === tf.value
                     ? "bg-indigo-600 text-white"
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                {tf === "all-time"
-                  ? "All Time"
-                  : tf.charAt(0).toUpperCase() + tf.slice(1)}
+                {tf.label}
               </button>
             ))}
           </div>
@@ -189,11 +190,11 @@ export default function LeaderboardPage() {
               <CardContent>
                 <div className="space-y-2">
                   {data.leaderboard.map((entry) => {
-                    const isCurrentUser = session?.user?.id === entry.userId;
+                    const isCurrentUser = session?.user?.id === entry.oderId;
 
                     return (
                       <div
-                        key={entry.userId}
+                        key={entry.oderId}
                         className={`
                           flex items-center gap-4 p-4 rounded-lg border-2 transition
                           ${getRankBgColor(entry.rank)}
@@ -257,7 +258,7 @@ export default function LeaderboardPage() {
 
             {/* Your Rank (if not in top 50) */}
             {session?.user?.id &&
-              !data.leaderboard.find((e) => e.userId === session.user.id) && (
+              !data.leaderboard.find((e) => e.oderId === session.user.id) && (
                 <Card className="mt-4 border-2 border-indigo-500">
                   <CardContent className="pt-6">
                     <div className="text-center text-gray-600">

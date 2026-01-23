@@ -5,23 +5,24 @@ export interface EnrolledCourse {
   _id: string;
   title: string;
   thumbnail?: string;
+  coverImage?: string;
   progress?: number;
+  totalLectures?: number;
+  completedLectures?: number;
+  lastAccessedAt?: Date;
 }
 
-export const getEnrolledCourses = async (userId: string) => {
-  console.log("📚 [ENROLLED COURSES] Fetching enrolled courses for userId:", userId);
+export interface EnrolledCoursesResponse {
+  enrolledCourses: EnrolledCourse[];
+  total: number;
+}
+
+export const getEnrolledCourses = async (
+  userId: string
+): Promise<EnrolledCoursesResponse | undefined> => {
   const endpoint = `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/course-progress?userId=${userId}`;
-  console.log("🔗 [ENROLLED COURSES] Endpoint:", endpoint);
-  
-  // Get user's progress to find enrolled courses
-  const res = await betterFetch<{ enrolledCourses: EnrolledCourse[] }>(endpoint);
-  
-  console.log("📦 [ENROLLED COURSES] Response:", {
-    enrolledCoursesCount: res.data?.enrolledCourses?.length || 0,
-    enrolledCourses: res.data?.enrolledCourses
-  });
-  
-  return res.data;
+  const res = await betterFetch<EnrolledCoursesResponse>(endpoint);
+  return res.data ?? undefined;
 };
 
 export const useGetEnrolledCourses = (userId?: string) => {

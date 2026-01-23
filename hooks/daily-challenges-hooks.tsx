@@ -1,101 +1,151 @@
 import { betterFetch } from "@better-fetch/fetch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type {
+  DailyChallenge,
+  UserChallengeProgress,
+  ChallengeType,
+  DailyChallengesResponse,
+} from "@/types/gamification";
 
-export interface DailyChallenge {
-  _id: string;
-  date: Date;
-  challenges: {
-    type: "complete_lecture" | "pass_quiz" | "study_time" | "perfect_quiz" | "complete_section";
-    target: number;
-    points: number;
-    description: string;
-  }[];
+// Re-export types for convenience
+export type { DailyChallenge, UserChallengeProgress, ChallengeType };
+
+// Response type for course-specific challenges
+export interface CourseChallengesResponse {
+  courseId: string;
+  courseName?: string;
+  challenges: DailyChallenge[];
+  userProgress: UserChallengeProgress[];
 }
 
-export interface UserChallengeProgress {
-  _id: string;
-  user: string;
-  date: Date;
-  challenges: {
-    type: string;
-    completed: boolean;
-    progress: number;
-    target: number;
-  }[];
+// Normalized challenge with progress for UI
+export interface NormalizedChallenge {
+  id: string;
+  courseId: string;
+  courseName?: string;
+  type: ChallengeType;
+  target: number;
+  points: number;
+  description: string;
+  progress: number;
+  completed: boolean;
 }
 
-export const getDailyChallenges = async (userId: string, courseId?: string) => {
-  const today = new Date().toISOString().split("T")[0];
-  
-  // If courseId provided, get challenges for specific course
-  if (courseId) {
-    const endpoint = `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/courses/${courseId}/challenges?userId=${userId}`;
-    console.log(`🔗 [DAILY CHALLENGES] Calling endpoint: ${endpoint}`);
-    const res = await betterFetch<{ challenges: DailyChallenge[]; userProgress: UserChallengeProgress[] }>(endpoint);
-    console.log(`📦 [DAILY CHALLENGES] Response for ${courseId}:`, res.data);
-    return res.data;
-  }
-  
-  // Otherwise get all challenges (legacy endpoint - needs updating)
-  const endpoint = `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification/challenges?userId=${userId}&date=${today}`;
-  console.log(`🔗 [DAILY CHALLENGES] Calling legacy endpoint: ${endpoint}`);
-  const res = await betterFetch<{ challenge: DailyChallenge; userProgress: UserChallengeProgress }>(endpoint);
-  console.log(`📦 [DAILY CHALLENGES] Legacy response:`, res.data);
-  return res.data;
+// Get challenges for a specific course
+export const getCourseChallenges = async (
+  userId: string,
+  courseId: string
+): Promise<DailyChallengesResponse | undefined> => {
+  const endpoint = `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/courses/${courseId}/challenges?userId=${userId}`;
+  const res = await betterFetch<DailyChallengesResponse>(endpoint);
+  return res.data ?? undefined;
 };
 
-export const useGetDailyChallenges = (userId?: string, courseId?: string) => {
+// Get all challenges (legacy endpoint - kept for backward compatibility)
+export const getDailyChallenges = async (
+  userId: string
+): Promise<DailyChallengesResponse | undefined> => {
+  const today = new Date().toISOString().split("T")[0];
+  const endpoint = `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification/challenges?userId=${userId}&date=${today}`;
+  const res = await betterFetch<DailyChallengesResponse>(endpoint);
+  return res.data ?? undefined;
+};
+
+export const useGetDailyChallenges = (userId?: string) => {
   return useQuery({
-    queryKey: ["daily-challenges", userId, courseId],
-    queryFn: () => getDailyChallenges(userId!, courseId),
+    queryKey: ["daily-challenges", userId],
+    queryFn: () => getDailyChallenges(userId!),
     enabled: !!userId,
-    refetchInterval: 60000, // Refetch every minute to update progress
+    refetchInterval: 60000, // Refetch every minute
   });
 };
 
 // Get challenges for all enrolled courses
-export const useGetAllCourseChallenges = (userId?: string, courseIds?: string[]) => {
+export const useGetAllCourseChallenges = (
+  userId?: string,
+  courseIds?: string[]
+) => {
+  const queryClient = useQueryClient();
+
   return useQuery({
     queryKey: ["all-course-challenges", userId, courseIds],
-    queryFn: async () => {
-      console.log("🎯 [DAILY CHALLENGES] Fetching challenges for:", {
-        userId,
-        courseIds,
-        courseCount: courseIds?.length || 0
-      });
-
+    queryFn: async (): Promise<NormalizedChallenge[]> => {
       if (!courseIds || courseIds.length === 0) {
-        console.log("⚠️ [DAILY CHALLENGES] No enrolled courses found");
-        return { challenges: [], progress: [] };
+        return [];
       }
 
-      // Fetch challenges for all enrolled courses
-      const results = await Promise.all(
+      // Fetch challenges for all enrolled courses in parallel
+      const results = await Promise.allSettled(
         courseIds.map(async (courseId) => {
-          try {
-            console.log(`📚 [DAILY CHALLENGES] Fetching for course: ${courseId}`);
-            const data = await getDailyChallenges(userId!, courseId);
-            console.log(`✅ [DAILY CHALLENGES] Data for ${courseId}:`, data);
-            return { courseId, ...data };
-          } catch (error) {
-            console.error(`❌ [DAILY CHALLENGES] Error fetching challenges for course ${courseId}:`, error);
-            return null;
-          }
+          const data = await getCourseChallenges(userId!, courseId);
+          return { courseId, data };
         })
       );
 
-      const filtered = results.filter(Boolean);
-      console.log("📊 [DAILY CHALLENGES] Final results:", {
-        totalResults: filtered.length,
-        results: filtered
+      // Process and normalize the challenges
+      const normalizedChallenges: NormalizedChallenge[] = [];
+
+      results.forEach((result) => {
+        if (result.status === "fulfilled" && result.value.data) {
+          const { courseId, data } = result.value;
+
+          // Handle both array and single challenge response formats
+          const challengesList = Array.isArray(data.challenges)
+            ? data.challenges
+            : data.challenges
+            ? [data.challenges]
+            : [];
+
+          const progressList = Array.isArray(data.userProgress)
+            ? data.userProgress
+            : data.userProgress
+            ? [data.userProgress]
+            : [];
+
+          challengesList.forEach((dailyChallenge) => {
+            dailyChallenge.challenges.forEach((challenge, index) => {
+              // Find matching progress
+              const userProgressEntry = progressList.find(
+                (p) =>
+                  p.courseId === courseId ||
+                  new Date(p.date).toDateString() ===
+                    new Date(dailyChallenge.date).toDateString()
+              );
+
+              const challengeProgress = userProgressEntry?.challenges?.find(
+                (cp) => cp.type === challenge.type
+              );
+
+              normalizedChallenges.push({
+                id: `${courseId}-${dailyChallenge._id}-${index}`,
+                courseId,
+                type: challenge.type,
+                target: challenge.target,
+                points: challenge.points,
+                description: challenge.description,
+                progress: challengeProgress?.progress ?? 0,
+                completed: challengeProgress?.completed ?? false,
+              });
+            });
+          });
+        }
       });
 
-      return filtered;
+      return normalizedChallenges;
     },
     enabled: !!userId && !!courseIds && courseIds.length > 0,
-    refetchInterval: 60000,
+    refetchInterval: 60000, // Refetch every minute
   });
 };
+
+// Complete a daily challenge
+export interface CompleteChallengeResponse {
+  success: boolean;
+  pointsAwarded: number;
+  challengeCompleted: boolean;
+  allChallengesCompleted: boolean;
+  bonusPoints?: number;
+}
 
 export const useCompleteDailyChallenge = () => {
   const queryClient = useQueryClient();
@@ -104,27 +154,53 @@ export const useCompleteDailyChallenge = () => {
     mutationFn: async ({
       userId,
       challengeType,
+      courseId,
     }: {
       userId: string;
-      challengeType: string;
-    }) => {
-      const res = await betterFetch(
+      challengeType: ChallengeType;
+      courseId?: string;
+    }): Promise<CompleteChallengeResponse | undefined> => {
+      const res = await betterFetch<CompleteChallengeResponse>(
         `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification/challenges/complete`,
         {
           method: "POST",
-          body: JSON.stringify({ userId, challengeType }),
+          body: JSON.stringify({ userId, challengeType, courseId }),
           headers: { "Content-Type": "application/json" },
         }
       );
-      return res.data;
+      return res.data ?? undefined;
     },
     onSuccess: (data, variables) => {
+      // Invalidate challenge queries
       queryClient.invalidateQueries({
         queryKey: ["daily-challenges", variables.userId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["all-course-challenges", variables.userId],
+      });
+      // Invalidate gamification profile as points may have changed
       queryClient.invalidateQueries({
         queryKey: ["gamification", variables.userId],
       });
     },
   });
+};
+
+// Helper to calculate overall challenge stats
+export const calculateChallengeStats = (challenges: NormalizedChallenge[]) => {
+  const total = challenges.length;
+  const completed = challenges.filter((c) => c.completed).length;
+  const totalPoints = challenges.reduce((sum, c) => sum + c.points, 0);
+  const earnedPoints = challenges
+    .filter((c) => c.completed)
+    .reduce((sum, c) => sum + c.points, 0);
+
+  return {
+    total,
+    completed,
+    percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
+    totalPoints,
+    earnedPoints,
+    allCompleted: total > 0 && completed === total,
+  };
 };

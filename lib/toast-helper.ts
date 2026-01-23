@@ -2,22 +2,30 @@ import toast from "react-hot-toast";
 import { createElement } from "react";
 import XPToast, { LevelUpToast } from "@/components/notifications/xp-toast";
 
-export const showXPToast = (points: number, description: string, type?: "xp" | "level" | "streak" | "badge") => {
+export type XPToastType = "xp" | "level" | "streak" | "badge";
+
+export const showXPToast = (
+  points: number,
+  description: string,
+  type: XPToastType = "xp"
+) => {
   toast.custom(
-    (t) => createElement(XPToast, { points, description, type }),
+    () => createElement(XPToast, { points, description, type }),
     {
       duration: 3000,
       position: "top-right",
+      id: `xp-toast-${Date.now()}`, // Unique ID to prevent duplicates
     }
   );
 };
 
 export const showLevelUpToast = (newLevel: number) => {
   toast.custom(
-    (t) => createElement(LevelUpToast, { newLevel }),
+    () => createElement(LevelUpToast, { newLevel }),
     {
       duration: 5000,
       position: "top-center",
+      id: `level-up-${newLevel}`,
     }
   );
 };
@@ -34,4 +42,14 @@ export const showErrorToast = (message: string) => {
     duration: 4000,
     position: "top-right",
   });
+};
+
+// Dismiss a specific toast by ID
+export const dismissToast = (toastId: string) => {
+  toast.dismiss(toastId);
+};
+
+// Dismiss all toasts
+export const dismissAllToasts = () => {
+  toast.dismiss();
 };

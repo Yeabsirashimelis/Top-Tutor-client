@@ -20,6 +20,7 @@ import EnhancedQuizPlayer from "@/components/quiz/enhanced-quiz-player";
 import Spinner from "@/components/spinner";
 import { useGetPaymentStatus } from "@/hooks/payment-status-hooks";
 import { useAwardPoints } from "@/hooks/gamification-hooks";
+import { POINT_VALUES } from "@/types/gamification";
 
 export default function CoursePage() {
   const { courseId } = useParams();
@@ -147,27 +148,22 @@ export default function CoursePage() {
         
         // Award points for course completion
         if (userId) {
-          console.log("🎓 [COURSE] Course completed! Progress:", {
-            overallProgress,
-            totalLectures: allLectures.length,
-            courseId,
-            courseName: course?.title
-          });
           try {
-            await awardPoints({
+            const result = await awardPoints({
               userId,
-              points: 100,
+              points: POINT_VALUES.COURSE_COMPLETED,
               type: "course_completed",
               description: `Completed course: ${course?.title}`,
               metadata: {
-                courseId,
+                courseId: courseId as string,
                 courseName: course?.title,
                 totalLectures: allLectures.length,
               },
             });
-            console.log("✅ [COURSE] Points awarded for course completion");
-          } catch (error) {
-            console.error("❌ [COURSE] Failed to award points for course completion:", error);
+            
+            // Points awarded (or already awarded if alreadyCompleted)
+          } catch {
+            // Silently fail - gamification is a bonus, not critical
           }
         }
       }, 500);

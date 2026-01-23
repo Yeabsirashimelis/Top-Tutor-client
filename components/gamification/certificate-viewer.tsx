@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Share2, CheckCircle, Award, Calendar, User } from "lucide-react";
+import { Download, Share2, CheckCircle, Award, Calendar, User, X } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 
@@ -13,6 +13,7 @@ interface Certificate {
   grade: string;
   finalScore: number;
   verificationCode: string;
+  studentName?: string;
   course: {
     title: string;
     coverImage?: string;
@@ -23,9 +24,13 @@ interface Certificate {
 
 interface CertificateViewerProps {
   certificates: Certificate[];
+  studentName?: string; // Can be passed from session
 }
 
-export default function CertificateViewer({ certificates }: CertificateViewerProps) {
+export default function CertificateViewer({
+  certificates,
+  studentName,
+}: CertificateViewerProps) {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
   if (!certificates || certificates.length === 0) {
@@ -43,6 +48,11 @@ export default function CertificateViewer({ certificates }: CertificateViewerPro
       </Card>
     );
   }
+
+  // Get the student name from props or from the certificate itself
+  const getStudentName = (cert: Certificate) => {
+    return cert.studentName || studentName || "Student";
+  };
 
   return (
     <div className="space-y-6">
@@ -99,14 +109,15 @@ export default function CertificateViewer({ certificates }: CertificateViewerPro
           onClick={() => setSelectedCert(null)}
         >
           <div
-            className="bg-white rounded-lg max-w-3xl w-full p-8 relative"
+            className="bg-white rounded-lg max-w-3xl w-full p-8 relative max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setSelectedCert(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              aria-label="Close"
             >
-              ✕
+              <X className="w-6 h-6" />
             </button>
 
             <div className="border-8 border-indigo-600 p-8 relative">
@@ -126,7 +137,7 @@ export default function CertificateViewer({ certificates }: CertificateViewerPro
                 <p className="text-gray-600">This certifies that</p>
 
                 <h2 className="text-3xl font-bold text-indigo-600">
-                  [Student Name]
+                  {getStudentName(selectedCert)}
                 </h2>
 
                 <p className="text-gray-600">has successfully completed</p>

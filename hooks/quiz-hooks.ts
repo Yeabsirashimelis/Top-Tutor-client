@@ -1,40 +1,74 @@
 import { betterFetch } from "@better-fetch/fetch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAwardPoints, checkLevelUp } from "./gamification-hooks";
 import { useBadgeNotification } from "./use-badge-notification";
 import { showXPToast, showLevelUpToast } from "@/lib/toast-helper";
+import { POINT_VALUES } from "@/types/gamification";
 
 export interface Quiz {
   _id: string;
   title: string;
   section: string;
   order: number;
+  description?: string;
+  difficulty?: "easy" | "medium" | "hard";
+  timeLimit?: number;
+  passingScore?: number;
+  maxAttempts?: number;
+  randomizeQuestions?: boolean;
+  randomizeOptions?: boolean;
+  showCorrectAnswers?: boolean;
   questions: {
     questionText: string;
+    questionType?: "multiple-choice" | "multiple-select" | "true-false" | "fill-in-blank";
     options: { text: string; isCorrect: boolean }[];
     explanation?: string;
+    points?: number;
+    correctAnswer?: string;
+    caseSensitive?: boolean;
   }[];
 }
 
-export const getQuiz = async (courseId:string, quizId: string, userId?: string) => {
-  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/quizzes/${quizId}?userId=${userId}&courseId=${courseId}`);
+export interface QuizAttempt {
+  _id: string;
+  score: number;
+  passed: boolean;
+  attemptedAt: Date;
+  timeTaken?: number;
+}
+
+export interface QuizResponse {
+  quiz: Quiz;
+  progress?: QuizAttempt[];
+}
+
+export const getQuiz = async (
+  courseId: string,
+  quizId: string,
+  userId?: string
+): Promise<QuizResponse | undefined> => {
+  const url = new URL(
+    `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/quizzes/${quizId}`
+  );
+  url.searchParams.set("courseId", courseId);
   if (userId) url.searchParams.set("userId", userId);
 
-  const res = await betterFetch<{ quiz: Quiz; progress?: any }>(url.toString());
-  return res.data!;
+  const res = await betterFetch<QuizResponse>(url.toString());
+  return res.data ?? undefined;
 };
 
-
-export const useGetQuiz = (courseId:string, quizId: string, userId:string) =>
+export const useGetQuiz = (courseId: string, quizId: string, userId: string) =>
   useQuery({
     queryKey: ["quiz", quizId, userId],
-    queryFn: () => getQuiz(courseId,quizId, userId),
+    queryFn: () => getQuiz(courseId, quizId, userId),
     enabled: !!quizId,
   });
 
 export const useSubmitQuizAttempt = () => {
   const queryClient = useQueryClient();
+  const { mutateAsync: awardPoints } = useAwardPoints();
   const { showBadges } = useBadgeNotification();
-  
+
   return useMutation({
     mutationFn: async ({
       courseId,
@@ -42,18 +76,22 @@ export const useSubmitQuizAttempt = () => {
       userId,
       score,
       passed,
+      answers,
+      timeTaken,
     }: {
       courseId: string;
       quizId: string;
       userId: string;
       score: number;
       passed: boolean;
+      answers?: { questionIndex: number; answer: unknown }[];
+      timeTaken?: number;
     }) =>
       betterFetch(
         `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/courses/${courseId}/quizzes/${quizId}/attempt`,
         {
           method: "POST",
-          body: { userId, score, passed },
+          body: { userId, score, passed, answers, timeTaken },
         }
       ),
     onSuccess: async (data, variables) => {
@@ -65,80 +103,51 @@ export const useSubmitQuizAttempt = () => {
         queryKey: ["course-progress", variables.userId, variables.courseId],
       });
 
-      // Award points for passing quiz
+      // Award points for passing quiz using the shared hook
       if (variables.passed) {
-        console.log("📝 [QUIZ] Quiz passed! Details:", {
-          userId: variables.userId,
-          courseId: variables.courseId,
-          quizId: variables.quizId,
-          score: variables.score,
-          passed: variables.passed
-        });
         try {
-          // Base points for passing
-          let points = 20;
-          let description = "Passed a quiz";
-          
-          // Bonus for perfect score
-          if (variables.score === 100) {
-            points = 50;
-            description = "Perfect score on quiz!";
-          }
+          // Determine points based on score
+          const isPerfect = variables.score === 100;
+          const points = isPerfect
+            ? POINT_VALUES.QUIZ_PERFECT
+            : POINT_VALUES.QUIZ_PASSED;
+          const type = isPerfect ? "quiz_perfect" : "quiz_passed";
+          const description = isPerfect
+            ? "Perfect score on quiz!"
+            : "Passed a quiz";
 
-          console.log("🎮 [QUIZ] Awarding points:", {
+          const result = await awardPoints({
+            userId: variables.userId,
             points,
-            type: variables.score === 100 ? "quiz_perfect" : "quiz_passed",
-            description
+            type,
+            description,
+            metadata: {
+              courseId: variables.courseId,
+              quizId: variables.quizId,
+              score: variables.score,
+            },
           });
 
-          const result = await betterFetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/gamification`,
-            {
-              method: "POST",
-              body: JSON.stringify({
-                userId: variables.userId,
-                points,
-                type: variables.score === 100 ? "quiz_perfect" : "quiz_passed",
-                description,
-                metadata: {
-                  courseId: variables.courseId,
-                  quizId: variables.quizId,
-                  score: variables.score,
-                },
-              }),
-              headers: { "Content-Type": "application/json" },
-            }
-          );
+          // Check if already completed (no duplicate points)
+          if (result?.alreadyCompleted) {
+            return;
+          }
 
-          console.log("✅ [QUIZ] Points awarded for quiz completion");
-          
           // Show XP toast notification
-          showXPToast(points, description, variables.score === 100 ? "badge" : "xp");
-          
-          // Check for level up
-          if (result?.data?.profile) {
-            const currentLevel = result.data.profile.level;
-            const previousLevel = localStorage.getItem(`user_level_${variables.userId}`);
-            
-            if (previousLevel && parseInt(previousLevel) < currentLevel) {
-              showLevelUpToast(currentLevel);
-            }
-            
-            localStorage.setItem(`user_level_${variables.userId}`, currentLevel.toString());
-          }
-          
-          // Show badge notifications if any badges were earned
-          if (result?.data?.newBadges && result.data.newBadges.length > 0) {
-            console.log("🏆 [QUIZ] Badges earned:", result.data.newBadges);
-            showBadges(result.data.newBadges);
+          showXPToast(points, description, isPerfect ? "badge" : "xp");
+
+          // Check for level up using the helper
+          const { leveledUp, newLevel } = checkLevelUp(result);
+          if (leveledUp) {
+            showLevelUpToast(newLevel);
           }
 
-          // Invalidate gamification data
-          queryClient.invalidateQueries({
-            queryKey: ["gamification", variables.userId],
-          });
+          // Show badge notifications if any badges were earned
+          if (result?.newBadges && result.newBadges.length > 0) {
+            showBadges(result.newBadges);
+          }
         } catch (error) {
-          console.error("❌ [QUIZ] Failed to award points for quiz:", error);
+          // Silently fail - points are a bonus, not critical
         }
       }
     },

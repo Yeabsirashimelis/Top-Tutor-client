@@ -523,9 +523,10 @@ export default function EnhancedQuizPlayer({
 
       case "fill-in-blank":
         const userAnswer = currentAnswer?.answer || "";
+        const correctAnswer = question.correctAnswer || "";
         const isCorrect = question.caseSensitive
-          ? userAnswer === question.correctAnswer
-          : userAnswer.toLowerCase() === question.correctAnswer.toLowerCase();
+          ? userAnswer === correctAnswer
+          : userAnswer.toLowerCase() === correctAnswer.toLowerCase();
         
         return (
           <div>
@@ -600,7 +601,7 @@ export default function EnhancedQuizPlayer({
             <div className="flex-1">
               <p className="text-xl font-semibold mb-1">{question.questionText}</p>
               <p className="text-sm text-gray-500">
-                {question.points > 1 ? `Worth ${question.points} points` : '1 point'}
+                {(question.points ?? 1) > 1 ? `Worth ${question.points} points` : '1 point'}
               </p>
             </div>
           </div>

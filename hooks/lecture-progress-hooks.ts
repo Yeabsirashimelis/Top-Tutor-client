@@ -1,7 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAwardPoints } from "./gamification-hooks";
+import { useAwardPoints, checkLevelUp } from "./gamification-hooks";
 import { useBadgeNotification } from "./use-badge-notification";
 import { showXPToast, showLevelUpToast } from "@/lib/toast-helper";
+import { POINT_VALUES } from "@/types/gamification";
+
+export interface LectureProgressUpdate {
+  lectureId: string;
+  lastPosition: number;
+  isCompleted?: boolean;
+}
+
+export interface LectureProgressResponse {
+  success: boolean;
+  progress: {
+    lectureId: string;
+    lastPosition: number;
+    isCompleted: boolean;
+    completedAt?: Date;
+  };
+}
 
 export function useLectureProgress(userId: string, courseId: string) {
   const queryClient = useQueryClient();
@@ -9,11 +26,7 @@ export function useLectureProgress(userId: string, courseId: string) {
   const { showBadges } = useBadgeNotification();
 
   return useMutation({
-    mutationFn: async (data: {
-      lectureId: string;
-      lastPosition: number;
-      isCompleted?: boolean;
-    }) => {
+    mutationFn: async (data: LectureProgressUpdate): Promise<LectureProgressResponse> => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_LINK}/api/course-progress/${courseId}/lecture/${data.lectureId}`,
         {
@@ -37,21 +50,17 @@ export function useLectureProgress(userId: string, courseId: string) {
       return res.json();
     },
     onSuccess: async (data, variables) => {
+      // Invalidate course progress query
       queryClient.invalidateQueries({
         queryKey: ["course-progress", userId, courseId],
       });
 
       // Award points when lecture is completed
       if (variables.isCompleted) {
-        console.log("📚 [LECTURE] Lecture completed, awarding points:", {
-          userId,
-          courseId,
-          lectureId: variables.lectureId
-        });
         try {
           const result = await awardPoints({
             userId,
-            points: 10,
+            points: POINT_VALUES.LECTURE_COMPLETED,
             type: "lecture_completed",
             description: "Completed a lecture",
             metadata: {
@@ -59,30 +68,27 @@ export function useLectureProgress(userId: string, courseId: string) {
               lectureId: variables.lectureId,
             },
           });
-          console.log("✅ [LECTURE] Points awarded for lecture completion");
-          
-          // Show XP toast notification
-          showXPToast(10, "Lecture completed!", "xp");
-          
-          // Check for level up
-          if (result?.profile) {
-            const currentLevel = result.profile.level;
-            const previousLevel = localStorage.getItem(`user_level_${userId}`);
-            
-            if (previousLevel && parseInt(previousLevel) < currentLevel) {
-              showLevelUpToast(currentLevel);
-            }
-            
-            localStorage.setItem(`user_level_${userId}`, currentLevel.toString());
+
+          // Check if already completed (no duplicate points)
+          if (result?.alreadyCompleted) {
+            return;
           }
-          
+
+          // Show XP toast notification
+          showXPToast(POINT_VALUES.LECTURE_COMPLETED, "Lecture completed!", "xp");
+
+          // Check for level up using the helper
+          const { leveledUp, newLevel } = checkLevelUp(result);
+          if (leveledUp) {
+            showLevelUpToast(newLevel);
+          }
+
           // Show badge notifications if any badges were earned
           if (result?.newBadges && result.newBadges.length > 0) {
-            console.log("🏆 [LECTURE] Badges earned:", result.newBadges);
             showBadges(result.newBadges);
           }
         } catch (error) {
-          console.error("❌ [LECTURE] Failed to award points for lecture completion:", error);
+          // Silently fail - points are a bonus, not critical
         }
       }
     },

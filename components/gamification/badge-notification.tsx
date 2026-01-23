@@ -3,34 +3,33 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, X, Sparkles } from "lucide-react";
-
-interface Badge {
-  badgeId: string;
-  name: string;
-  description: string;
-  icon: string;
-  rarity: string;
-  points: number;
-}
+import { Award, X, Sparkles, Star, Trophy, Flame, Zap, Target, Brain, Heart } from "lucide-react";
+import { RARITY_GRADIENTS, RARITY_BORDERS, RARITY_BG_COLORS, type BadgeRarity } from "@/types/gamification";
+import type { NotificationBadge } from "@/hooks/use-badge-notification";
 
 interface BadgeNotificationProps {
-  badges: Badge[];
+  badges: NotificationBadge[];
   onClose: () => void;
 }
 
-const rarityColors = {
-  common: "from-gray-400 to-gray-600",
-  rare: "from-blue-400 to-blue-600",
-  epic: "from-purple-400 to-purple-600",
-  legendary: "from-yellow-400 to-yellow-600",
+// Map icon names to Lucide components
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  star: Star,
+  trophy: Trophy,
+  flame: Flame,
+  zap: Zap,
+  target: Target,
+  brain: Brain,
+  heart: Heart,
+  award: Award,
 };
 
-const rarityBorders = {
-  common: "border-gray-400",
-  rare: "border-blue-400",
-  epic: "border-purple-400",
-  legendary: "border-yellow-400",
+const getBadgeIcon = (iconName: string) => {
+  // Check if it's an emoji (starts with a common emoji Unicode range)
+  if (/^\p{Emoji}/u.test(iconName)) {
+    return null; // Return null to indicate emoji mode
+  }
+  return iconMap[iconName.toLowerCase()] || Award;
 };
 
 export default function BadgeNotification({
@@ -59,7 +58,8 @@ export default function BadgeNotification({
   if (badges.length === 0 || !isVisible) return null;
 
   const badge = badges[currentIndex];
-  const rarity = badge.rarity as keyof typeof rarityColors;
+  const rarity = (badge.rarity || "common") as BadgeRarity;
+  const IconComponent = getBadgeIcon(badge.icon);
 
   return (
     <AnimatePresence>
@@ -70,10 +70,10 @@ export default function BadgeNotification({
         className="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
       >
         <Card
-          className={`border-4 ${rarityBorders[rarity]} shadow-2xl overflow-hidden`}
+          className={`border-4 ${RARITY_BORDERS[rarity]} shadow-2xl overflow-hidden`}
         >
           <div
-            className={`h-2 bg-gradient-to-r ${rarityColors[rarity]}`}
+            className={`h-2 bg-gradient-to-r ${RARITY_GRADIENTS[rarity]}`}
           ></div>
           <CardContent className="pt-6 pb-4">
             {/* Close Button */}
@@ -101,9 +101,13 @@ export default function BadgeNotification({
                     repeat: Infinity,
                     repeatDelay: 2,
                   }}
-                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${rarityColors[rarity]} flex items-center justify-center text-4xl shadow-lg`}
+                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${RARITY_GRADIENTS[rarity]} flex items-center justify-center shadow-lg`}
                 >
-                  {badge.icon}
+                  {IconComponent ? (
+                    <IconComponent className="w-10 h-10 text-white" />
+                  ) : (
+                    <span className="text-4xl">{badge.icon}</span>
+                  )}
                 </motion.div>
                 <motion.div
                   animate={{
@@ -114,7 +118,7 @@ export default function BadgeNotification({
                     duration: 2,
                     repeat: Infinity,
                   }}
-                  className={`absolute inset-0 rounded-full bg-gradient-to-br ${rarityColors[rarity]} opacity-30`}
+                  className={`absolute inset-0 rounded-full bg-gradient-to-br ${RARITY_GRADIENTS[rarity]} opacity-30`}
                 ></motion.div>
               </div>
 
@@ -134,15 +138,7 @@ export default function BadgeNotification({
                 </p>
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-semibold uppercase ${
-                      rarity === "common"
-                        ? "bg-gray-100 text-gray-700"
-                        : rarity === "rare"
-                        ? "bg-blue-100 text-blue-700"
-                        : rarity === "epic"
-                        ? "bg-purple-100 text-purple-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
+                    className={`text-xs px-2 py-1 rounded-full font-semibold uppercase ${RARITY_BG_COLORS[rarity]}`}
                   >
                     {badge.rarity}
                   </span>
