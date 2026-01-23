@@ -3,24 +3,42 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import { useGetCourse } from "@/hooks/course-hooks";
 import { useCourseProgress } from "@/hooks/course-progress-hooks";
 import { useCourseAccess } from "@/hooks/course-access-hooks";
 import CourseHeader from "@/components/specific-course/course-header";
 import CourseNotes from "@/components/specific-course/course-note";
 import CourseOverview from "@/components/specific-course/course-overview";
-import CoursePlayer from "@/components/specific-course/course-player";
 import CourseSidebar from "@/components/specific-course/coursee-sidebar";
-import PaymentForm from "@/components/specific-course/paymentForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import RatingPrompt from "@/components/specific-course/rating-prompt";
 import { useGetCourseRating } from "@/hooks/course-rating-hooks";
-import EnhancedQuizPlayer from "@/components/quiz/enhanced-quiz-player";
 import Spinner from "@/components/spinner";
 import { useGetPaymentStatus } from "@/hooks/payment-status-hooks";
 import { useAwardPoints } from "@/hooks/gamification-hooks";
 import { POINT_VALUES } from "@/types/gamification";
+
+// Dynamic imports for heavy components to reduce initial bundle size
+const CoursePlayer = dynamic(
+  () => import("@/components/specific-course/course-player"),
+  { loading: () => <div className="animate-pulse bg-gray-200 aspect-video w-full" /> }
+);
+
+const EnhancedQuizPlayer = dynamic(
+  () => import("@/components/quiz/enhanced-quiz-player"),
+  { loading: () => <div className="animate-pulse bg-gray-200 aspect-video w-full" /> }
+);
+
+const PaymentForm = dynamic(
+  () => import("@/components/specific-course/paymentForm"),
+  { loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded-lg" /> }
+);
+
+const RatingPrompt = dynamic(
+  () => import("@/components/specific-course/rating-prompt"),
+  { ssr: false }
+);
 
 export default function CoursePage() {
   const { courseId } = useParams();
