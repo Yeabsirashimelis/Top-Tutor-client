@@ -27,11 +27,8 @@ export default function TrendingCourses() {
   }
 
   return (
-    <section className="relative w-full py-16 md:py-20 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-black" />
-
-      <div className="relative z-10 w-[95%] mx-auto">
+    <section className="relative w-full py-16 md:py-20 overflow-hidden bg-white">
+      <div className="relative z-10 w-[95%] max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -39,13 +36,13 @@ export default function TrendingCourses() {
           className="text-center mb-12"
         >
           <div className="flex items-center justify-center gap-3 mb-4">
-            <TrendingUp className="w-8 h-8 text-lime-400" />
+            <TrendingUp className="w-8 h-8 text-blue-600" />
             <h2 className="text-4xl md:text-5xl font-bold">
-              <span className="text-white">Trending</span>{" "}
-              <span className="text-lime-400">Courses</span>
+              <span className="text-gray-900">Trending</span>{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Courses</span>
             </h2>
           </div>
-          <p className="text-white/70 text-lg">
+          <p className="text-gray-600 text-lg">
             Most popular courses based on student ratings and enrollments
           </p>
         </motion.div>

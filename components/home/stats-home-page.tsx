@@ -23,26 +23,26 @@ const StatItem = ({ icon, count, label, iconColor, gradientFrom, gradientTo, del
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
-      whileHover={{ scale: 1.05, y: -5 }}
+      whileHover={{ scale: 1.02, y: -5 }}
       className="group relative"
     >
-      <div className="relative bg-white/5 backdrop-blur-xl p-6 rounded-2xl border-2 border-white/20 hover:border-lime-400 shadow-lg hover:shadow-lime-400/20 transition-all duration-300">
+      <div className="relative bg-white p-6 rounded-2xl border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all duration-300">
         <div className="relative flex gap-4 items-center">
-          <div className={`bg-gradient-to-br ${gradientFrom} ${gradientTo} p-4 rounded-xl shadow-md border-2 border-white ${iconColor}`}>
+          <div className={`bg-gradient-to-br ${gradientFrom} ${gradientTo} p-4 rounded-xl shadow-sm ${iconColor}`}>
             {icon}
           </div>
           <div className="flex flex-col">
-            <p className="text-4xl md:text-5xl font-bold text-lime-400">
+            <p className="text-4xl md:text-5xl font-bold text-gray-900">
               {count}
             </p>
-            <p className="text-xs md:text-sm text-white/70 font-semibold tracking-wide mt-1 uppercase">
+            <p className="text-xs md:text-sm text-gray-600 font-semibold tracking-wide mt-1 uppercase">
               {label}
             </p>
           </div>
         </div>
 
-        {/* Poker suit accent */}
-        <div className="absolute top-3 right-3 text-3xl text-white/30 group-hover:text-lime-400/50 transition-colors">
+        {/* Icon accent */}
+        <div className="absolute top-3 right-3 text-2xl opacity-20 group-hover:opacity-40 transition-opacity">
           {emoji}
         </div>
       </div>
@@ -53,43 +53,43 @@ const StatItem = ({ icon, count, label, iconColor, gradientFrom, gradientTo, del
 export default function StatsHome() {
   const stats = [
     {
-      icon: <Book className="h-6 w-6 md:h-7 md:w-7 text-white" />,
+      icon: <Book className="h-6 w-6 md:h-7 md:w-7 text-blue-600" />,
       count: "10+",
       label: "Total Courses",
-      iconColor: "text-emerald-500",
-      gradientFrom: "from-emerald-400",
-      gradientTo: "to-green-500",
+      iconColor: "text-blue-600",
+      gradientFrom: "from-blue-50",
+      gradientTo: "to-blue-100",
       delay: 0.1,
-      emoji: "♠",
+      emoji: "📚",
     },
     {
-      icon: <UserCheck className="h-6 w-6 md:h-7 md:w-7 text-white" />,
+      icon: <UserCheck className="h-6 w-6 md:h-7 md:w-7 text-indigo-600" />,
       count: "5+",
       label: "Expert Mentors",
-      iconColor: "text-teal-500",
-      gradientFrom: "from-teal-400",
-      gradientTo: "to-emerald-500",
+      iconColor: "text-indigo-600",
+      gradientFrom: "from-indigo-50",
+      gradientTo: "to-indigo-100",
       delay: 0.2,
-      emoji: "♥",
+      emoji: "👨‍🏫",
     },
     {
-      icon: <Users className="h-6 w-6 md:h-7 md:w-7 text-white" />,
+      icon: <Users className="h-6 w-6 md:h-7 md:w-7 text-purple-600" />,
       count: "300+",
       label: "Active Students",
-      iconColor: "text-green-500",
-      gradientFrom: "from-green-400",
-      gradientTo: "to-teal-500",
+      iconColor: "text-purple-600",
+      gradientFrom: "from-purple-50",
+      gradientTo: "to-purple-100",
       delay: 0.3,
-      emoji: "♣",
+      emoji: "🎓",
     },
   ];
 
   return (
     <div className="relative py-16 md:py-20 w-full overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-black" />
+      <div className="absolute inset-0 bg-white" />
 
-      <div className="relative z-10 w-[95%] mx-auto">
+      <div className="relative z-10 w-[95%] max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -97,10 +97,10 @@ export default function StatsHome() {
           className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-2">
-            <span className="text-white">Our</span>{" "}
-            <span className="text-lime-400">Impact</span>
+            <span className="text-gray-900">Our</span>{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Impact</span>
           </h2>
-          <p className="text-white/70 text-lg">
+          <p className="text-gray-600 text-lg">
             Join thousands of students on their learning journey
           </p>
         </motion.div>

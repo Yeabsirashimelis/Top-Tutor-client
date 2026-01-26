@@ -46,8 +46,8 @@ export default function NavBar() {
     <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-black/95 backdrop-blur-lg border-b border-lime-400/20 shadow-lg shadow-lime-400/10"
-          : "bg-transparent"
+          ? "bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm"
+          : "bg-white/80 backdrop-blur-sm"
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -58,8 +58,7 @@ export default function NavBar() {
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <div className="relative">
-              <div className="absolute inset-0 bg-lime-400/20 blur-2xl group-hover:bg-lime-400/30 transition-all duration-300" />
-              <span className="relative text-3xl md:text-4xl font-black bg-gradient-to-r from-lime-400 via-green-400 to-lime-300 bg-clip-text text-transparent hover:from-lime-300 hover:via-green-300 hover:to-lime-400 transition-all duration-300 tracking-tight">
+              <span className="relative text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-all duration-300">
                 እንማር
               </span>
             </div>
@@ -76,8 +75,8 @@ export default function NavBar() {
                   href={link.href}
                   className={`relative px-4 py-2 rounded-lg font-medium transition-all ${
                     isActive
-                      ? "text-lime-400"
-                      : "text-gray-300 hover:text-lime-400"
+                      ? "text-blue-600 bg-blue-50"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -87,7 +86,7 @@ export default function NavBar() {
                   {isActive && (
                     <motion.div
                       layoutId="navbar-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-lime-400 to-green-400"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-indigo-600"
                       transition={{
                         type: "spring",
                         bounce: 0.2,
@@ -108,8 +107,8 @@ export default function NavBar() {
                     href={link.href}
                     className={`relative px-4 py-2 rounded-lg font-medium transition-all ${
                       isActive
-                        ? "text-lime-400"
-                        : "text-gray-300 hover:text-lime-400"
+                        ? "text-blue-600 bg-blue-50"
+                        : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -119,7 +118,7 @@ export default function NavBar() {
                     {isActive && (
                       <motion.div
                         layoutId="navbar-indicator"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-lime-400 to-green-400"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-indigo-600"
                         transition={{
                           type: "spring",
                           bounce: 0.2,
@@ -138,7 +137,7 @@ export default function NavBar() {
               <>
                 <button
                   onClick={() => signOut()}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-lime-500 hover:bg-lime-400 text-black transition-all font-medium"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all font-medium shadow-sm"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out
@@ -148,13 +147,13 @@ export default function NavBar() {
               <>
                 <Link
                   href="/signin"
-                  className="px-4 py-2 rounded-lg text-gray-300 hover:text-lime-400 font-medium transition-all"
+                  className="px-4 py-2 rounded-lg text-gray-700 hover:text-blue-600 font-medium transition-all"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-400 hover:to-green-400 text-black font-medium transition-all shadow-lg shadow-lime-400/20"
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all shadow-sm"
                 >
                   Get Started
                 </Link>
@@ -165,7 +164,7 @@ export default function NavBar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-zinc-900/50 border border-lime-400/30 text-lime-400"
+            className="md:hidden p-2 rounded-lg bg-gray-50 border border-gray-300 text-gray-700 hover:bg-gray-100"
           >
             {isMobileMenuOpen ? (
               <X className="w-6 h-6" />
@@ -183,7 +182,7 @@ export default function NavBar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-black/95 backdrop-blur-lg border-t border-lime-400/20"
+            className="md:hidden bg-white backdrop-blur-lg border-t border-gray-200"
           >
             <div className="px-4 py-4 space-y-2">
               {navLinks.map((link) => {
@@ -196,8 +195,8 @@ export default function NavBar() {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
                       isActive
-                        ? "bg-lime-400/10 text-lime-400 border border-lime-400/30"
-                        : "text-gray-300 hover:bg-zinc-900/50"
+                        ? "bg-blue-50 text-blue-600 border border-blue-200"
+                        : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -217,8 +216,8 @@ export default function NavBar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
                         isActive
-                          ? "bg-lime-400/10 text-lime-400 border border-lime-400/30"
-                          : "text-gray-300 hover:bg-zinc-900/50"
+                          ? "bg-blue-50 text-blue-600 border border-blue-200"
+                          : "text-gray-700 hover:bg-gray-50"
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -227,7 +226,7 @@ export default function NavBar() {
                   );
                 })}
 
-              <div className="pt-4 border-t border-zinc-800 space-y-2">
+              <div className="pt-4 border-t border-gray-200 space-y-2">
                 {session ? (
                   <>
                     <button
@@ -235,7 +234,7 @@ export default function NavBar() {
                         signOut();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-lime-500 text-black"
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       <LogOut className="w-5 h-5" />
                       Sign Out
@@ -246,14 +245,14 @@ export default function NavBar() {
                     <Link
                       href="/signin"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center justify-center px-4 py-3 rounded-lg border border-lime-400/30 text-gray-300"
+                      className="flex items-center justify-center px-4 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/register"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center justify-center px-4 py-3 rounded-lg bg-gradient-to-r from-lime-500 to-green-500 text-black"
+                      className="flex items-center justify-center px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       Get Started
                     </Link>

@@ -11,7 +11,7 @@ import RecentlyViewed from "@/components/home/recently-viewed";
 
 export default function HomePage() {
   return (
-    <div className="relative overflow-hidden bg-black">
+    <div className="relative overflow-hidden bg-white">
 
       <HomeTop />
       <StatsHome />

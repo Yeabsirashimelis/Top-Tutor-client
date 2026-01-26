@@ -33,9 +33,9 @@ export default function CourseCard(course: CourseCardProps) {
       onHoverStart={() => setIsFlipped(true)}
       onHoverEnd={() => setIsFlipped(false)}
     >
-      <Card className="group relative overflow-hidden cursor-pointer border-2 border-gray-200 hover:border-lime-400 transition-all duration-300 bg-white hover:shadow-xl hover:shadow-lime-400/20">
+      <Card className="group relative overflow-hidden cursor-pointer border border-gray-200 hover:border-blue-300 transition-all duration-300 bg-white hover:shadow-lg">
         {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-lime-400/0 to-lime-400/10 opacity-0 group-hover:opacity-100 transition-all duration-300 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-all duration-300 z-0" />
 
         <div onClick={() => router.push(`/courses/${_id}`)} className="relative z-10">
           <CardHeader className="p-0 relative overflow-hidden">
@@ -48,57 +48,48 @@ export default function CourseCard(course: CourseCardProps) {
                   className="object-cover group-hover:scale-105 transition-transform duration-500" 
                 />
               ) : (
-                <div className="bg-gradient-to-br from-gray-700 to-emerald-900 h-full w-full flex items-center justify-center">
-                  <BookOpen className="w-16 h-16 text-emerald-400" />
+                <div className="bg-gradient-to-br from-gray-100 to-gray-200 h-full w-full flex items-center justify-center">
+                  <BookOpen className="w-16 h-16 text-gray-400" />
                 </div>
               )}
               
               {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               <Badge
                 variant="secondary"
-                className="absolute top-3 left-3 bg-white text-black font-bold border-2 border-lime-400 shadow-lg text-xs"
+                className="absolute top-3 left-3 bg-blue-600 text-white font-semibold border border-blue-700 shadow-sm text-xs"
               >
                 {courseType}
               </Badge>
               
               {/* Wishlist button */}
               <motion.div 
-                className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-lg border-2 border-lime-400 opacity-0 group-hover:opacity-100"
+                className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md border border-gray-200 opacity-0 group-hover:opacity-100"
                 initial={{ scale: 0 }}
                 whileHover={{ scale: 1.1 }}
                 animate={{ scale: 1 }}
               >
                 <WishlistButton courseId={_id} />
               </motion.div>
-
-              {/* Poker suits corner accent */}
-              <div className="absolute bottom-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {["♠", "♥", "♣", "♦"].map((suit, i) => (
-                  <span key={i} className={`text-2xl font-bold ${i % 2 === 0 ? 'text-lime-400' : 'text-white'}`}>
-                    {suit}
-                  </span>
-                ))}
-              </div>
             </div>
           </CardHeader>
           
           <CardContent className="px-4 py-4 space-y-3">
-            <h3 className="text-lg font-bold text-black line-clamp-2 group-hover:text-lime-600 transition-colors duration-300">
+            <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
               {title}
             </h3>
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-8 h-8 rounded-full bg-lime-400 flex items-center justify-center text-black font-bold text-xs border-2 border-white">
+              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs border border-blue-200">
                 {instructor?.name?.[0] || "?"}
               </div>
-              <p className="text-gray-700 font-medium">
+              <p className="text-gray-600 font-medium">
                 {instructor ? instructor.name : "Unknown"}
               </p>
             </div>
           </CardContent>
           
-          <CardFooter className="px-4 pb-4 pt-0 flex items-center justify-between border-t-2 border-gray-100 mt-2">
+          <CardFooter className="px-4 pb-4 pt-0 flex items-center justify-between border-t border-gray-100 mt-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
@@ -112,13 +103,13 @@ export default function CourseCard(course: CourseCardProps) {
                   />
                 ))}
               </div>
-              <span className="text-sm font-bold text-black">
+              <span className="text-sm font-bold text-gray-900">
                 {ratingsAverage?.toFixed(1) || "0.0"}
               </span>
             </div>
             
             <motion.div
-              className="px-4 py-2 bg-white text-black text-xs font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 border-2 border-lime-400"
+              className="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               whileHover={{ scale: 1.05 }}
             >
               View Course
